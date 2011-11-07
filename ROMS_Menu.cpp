@@ -391,16 +391,24 @@ string ROMS_Menu::show_button(Msg_type type)
 {
 	switch(type) {
 	case Tables_button:
-		return show_func(recipes, "Recipes");
+	case Show_recipe: //## Ecky B2 (Weird naming? "Tables_button" for showing recipes?) 
+		return show_tabular_func(recipes, "Recipes");
+
 	case Orders_button:
-		return show_func(orders, "Orders");
+	case Show_order: //## Ecky B2 
+		return show_tabular_func(orders, "Orders");
+
 	case Categories_button:
 		return show_func(categories, "Category");
+
 	case Menu_items_button:
-		return show_func(menu_items, "Menu Items");
+	case Show_menu: //## Ecky B2
+		return show_tabular_func(menu_items, "Menu Items");
+
 	case Recipes_button:
 		return show_func(order_items, "Order Items");
+
 	default:
 		throw InvalidType();
-}
+	}
 }

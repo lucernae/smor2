@@ -15,11 +15,29 @@ public:
 		: recipe_id(id), chef_name(n), instr(a) {}
 
    // utility functions
-	string display() const {	//B.1.a
+	//## Ecky B2
+	static string display_headers() {
 		ostringstream oss;
-		oss << "Chef Name: " << chef_name << endl << instr.display() ;
+		oss		<< left << setw(20) << "Chef Name"
+				<< "Instructions";
+		return oss.str();
+	}
+
+	//##Ecky B2
+	string display() const {	//B.1.a
+		vector<string> s;
+		instr.get_instructions_vector(s);
+		
+		ostringstream oss;
+		oss		<< left << setw(20) << chef_name
+				<< s[0] << endl;
+		for(int i = 1; i < s.size(); ++i) {
+			oss	<< left << setw(20) << " "
+				<< s[i] << endl;
+		}
 		return oss.str();
 	}	//B.1.a
+
 	int get_rec_id() const {return recipe_id;}	//B.1.a
 	string get_chef()const {return chef_name;}	//B.1.b
 private:

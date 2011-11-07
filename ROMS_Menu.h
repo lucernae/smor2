@@ -81,6 +81,23 @@ public:
 			}
 		return r;
 	}
+
+	template <typename T>
+	string show_tabular_func(T t, string s)
+	{
+		string r;
+		if(0==t.size())
+			r = "No "+s+" Data Loaded\n";
+		else {
+			r += t[0].display_headers() + "\n";
+			for(int i=0; i<t.size(); ++i)
+			{
+				r+=t[i].display();
+				r+="\n";
+			}
+		}
+		return r;
+	}
 private:
    //private data
 	vector<Category> categories;

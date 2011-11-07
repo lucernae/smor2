@@ -37,6 +37,7 @@ namespace Graph_lib {
 		ptd = new Fl_Text_Display(loc.x, loc.y, width, height, label.c_str());
 		ptd->buffer(&data);
 		pw  = (Fl_Widget*) ptd;
+		ptd->textfont(Fl_Font::FL_COURIER);
 		pw->callback(reinterpret_cast<Fl_Callback*>(do_it), &win); // pass the window
 		own = &win;
 	}
@@ -167,8 +168,9 @@ void Main_Window_CB(Fl_Widget*, void* ud) {
 }
 //wait functions for callbacks to be executed
 void wait_for_main_window_click() {
-	while (!main_window_click) 
+	while (!main_window_click) {
 		Fl::wait();
+	}
 	main_window_click = false;
 	Fl::redraw();
 }
@@ -196,9 +198,9 @@ int main()
 	Button ci(Point(40, 250), 100, 30, "Order Items", oi_cb);
 	sw.attach(ci);
     sw.callback((Fl_Callback*)Main_Window_CB, Address (Exit_program));
-	//Menu_bar mb(Point(0, 0), 600, 30, menu_bar_cb);
-    //mb.menu(menu_bar);
-	//sw.attach(mb);
+	Menu_bar mb(Point(0, 0), 600, 30, menu_bar_cb);
+    mb.menu(menu_bar);
+	sw.attach(mb);
 
 	Window_text_display t(Point(150,50),400, 400, "Data Display", display_cb );
 	t.set_buffer("No Data Loaded\n");
@@ -230,6 +232,7 @@ int main()
 					do_about_box(sw);
 					break;
 				case Tables_button: case Orders_button: case Categories_button: case Recipes_button: case Menu_items_button:
+				case Show_menu: case Show_recipe: case Show_order: //## Ecky B2
 					t.set_buffer(m.show_button((Msg_type) window_userdata).c_str());
 					break;
 				case Exit_program:

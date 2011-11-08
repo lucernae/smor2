@@ -28,6 +28,7 @@ public:
 	int get_order_id() const {return order_id;}	//B.2.a
 	int get_qty() const {return prod_qty;}	//B.2.a
 	int get_menu_item_id() const {return menu_item_id;}	//B.2.a
+  string seat() const {return seat_id;} //RCD B.1
 private:
    //constants  
 

@@ -247,7 +247,8 @@ int main()
 					break;
 				case Exit_program:
 					cout << "save files and exit\n";
-					//exit(0); //exit program
+					m.write_all(); //RCD B.1
+					exit(0); //exit program
 					break;
 				default:
 					cout << "case not implemented\n";
@@ -267,12 +268,33 @@ int main()
 //show about box info window
 void do_about_box(Window& w) 
 {
-	Window ab(Point(w.x()+100, w.y()+100), 400, 120, "About Box");
+        Window ab(Point(w.x()+50, w.y()+50), 500, 400, "About Box"); //modified: RCD B.1
 	ab.color(Color::white);
 	ab.callback((Fl_Callback*)Menu_Bar_CB, Address (Close_about_box));
-	Text msg(Point(15,50), "Ward Project Part II: Restaurant Order Management System");
+	//RCD B.1 ---
+	Text msg(Point(40,25), "Ward Project Part II: Restaurant Order Management System");
 	msg.set_color(Color::black);
+	Text team(Point(215,50), "Team 4");
+	team.set_color(Color::black);
+	team.set_font(Font::helvetica_bold);
+	Image ecky_image(Point(40, 60), "Ecky.gif");
+	Text ecky(Point(146, 80), "Ecky Putrady");
+	ecky.set_color(Color::black);
+	Image rizky_image(Point(40, 166), "Rizky.gif");
+	Text rizky(Point(146, 186), "Rizky Nugraha");
+	rizky.set_color(Color::black);
+	Image ross_image(Point(40, 272), "Ross.gif");
+	Text ross(Point(146, 292), "Ross Dixon");
+	ross.set_color(Color::black);
 	ab.attach(msg);
+	ab.attach(team);
+	ab.attach(ecky_image);
+	ab.attach(ecky);
+	ab.attach(rizky_image);
+	ab.attach(rizky);
+	ab.attach(ross_image);
+	ab.attach(ross);
+	//end RCD B.1 ---
 	wait_for_menu_bar_click();
 	ab.detach(msg);//clean up window
 	return;

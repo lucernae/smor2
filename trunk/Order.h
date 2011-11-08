@@ -51,6 +51,9 @@ public:
 
 	int get_table_id() const {return table_id;}	//B.2.a
 	int get_order_id() const {return order_id;}	//B.2.a
+  int server() const {return server_id;} //RCD B1
+  Date o_date() const {return order_date;} //RCD B1
+  Time o_time() const {return order_time;} //RCD B1
 private:
    //constants
 

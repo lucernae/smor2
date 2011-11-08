@@ -40,6 +40,7 @@ public:
 
 	int get_rec_id() const {return recipe_id;}	//B.1.a
 	string get_chef()const {return chef_name;}	//B.1.b
+  Instructions instruc() const {return instr;} //RCD B1
 private:
    //constants
      
@@ -51,7 +52,7 @@ private:
 
 struct SortRecipesByChef		//B.1.b
 {
-   bool operator()(Recipe& a, Recipe& b) const
+   bool operator()(const Recipe& a,const Recipe& b) const
    {
 	   return a.get_chef() < b.get_chef();
    }

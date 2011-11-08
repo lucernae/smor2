@@ -7,8 +7,13 @@
 using namespace std;
 using namespace ROMS;
 
+namespace ROMS{
+  
 ROMS_Menu::ROMS_Menu()
 {
+  rec_fname = "-1";
+  ord_fname = "-1";
+  cat_fname = "-1";
 }
 
 void ROMS_Menu::display_main_menu() const 
@@ -28,119 +33,122 @@ void ROMS_Menu::read_recipes_ingredients(string fname)
 	//A.1, 2 & 3 merge
 	ifstream ist;
 
-	//A.1 read ingredients	//should error check
-	int num_rec = get_file_info(ist, "Please enter recipe data file name: ", fname);
-	ingredients.clear();	//start with an empty list
-	read_file(ist, num_rec, ROMS_Menu::Ingred);
-	cout << "read " << ingredients.size() << " ingredient items \n";
-	//A.1 read and store the recipe data	//should error check
-	ist >> num_rec;
-	recipes.clear();	//start with an empty list
-	read_file(ist, num_rec, ROMS_Menu::Rec);
-	cout << "read " << recipes.size() << " recipes \n";
-	ist.close();
+  //A.1 read ingredients	//should error check
+  int num_rec = get_file_info(ist, "Please enter recipe data file name: ", fname);
+  ingredients.clear();	//start with an empty list
+  read_file(ist, num_rec, ROMS_Menu::Ingred);
+  cout << "read " << ingredients.size() << " ingredient items \n";
+  //A.1 read and store the recipe data	//should error check
+  ist >> num_rec;
+  recipes.clear();	//start with an empty list
+  read_file(ist, num_rec, ROMS_Menu::Rec);
+  cout << "read " << recipes.size() << " recipes \n";
+  ist.close();
+  rec_fname = fname;
 }
 
 void ROMS_Menu::Read_orders(string fname)
 {
-	//A.2 read and store the order and order item data 
-	ifstream ist;
-	int num_orders = get_file_info(ist, "Please enter orders data file name: ", fname);
-	orders.clear();	//start with an empty list
-	read_file(ist, num_orders, ROMS_Menu::Ord);
-	cout << "read " << orders.size() << " orders \n";
+  //A.2 read and store the order and order item data 
+  ifstream ist;
+  int num_orders = get_file_info(ist, "Please enter orders data file name: ", fname);
+  orders.clear();	//start with an empty list
+  read_file(ist, num_orders, ROMS_Menu::Ord);
+  cout << "read " << orders.size() << " orders \n";
 
-	//A.2 read order item data	
-	int num_items = 0;
-	order_items.clear();	//start with an empty list
-	ist >> num_items;
-	read_file(ist, num_items, ROMS_Menu::Ord_item);
-	cout << "read " << order_items.size() << " order items \n";
-	ist.close();
+  //A.2 read order item data	
+  int num_items = 0;
+  order_items.clear();	//start with an empty list
+  ist >> num_items;
+  read_file(ist, num_items, ROMS_Menu::Ord_item);
+  cout << "read " << order_items.size() << " order items \n";
+  ist.close();
+  ord_fname = fname;
 }
 
 void ROMS_Menu::read_catprds(string fname)
 {
-	ifstream ist;
-	int num_items;
-	//A.3 read the category and menu data
-	int num_cats = get_file_info(ist, "Please enter file name for category/menu data: ", fname);
-	categories.clear();	//start with an empty list
-	read_file(ist, num_cats, ROMS_Menu::Cats);
-	cout << "read " << categories.size() << " categories \n";
+  ifstream ist;
+  int num_items;
+  //A.3 read the category and menu data
+  int num_cats = get_file_info(ist, "Please enter file name for category/menu data: ", fname);
+  categories.clear();	//start with an empty list
+  read_file(ist, num_cats, ROMS_Menu::Cats);
+  cout << "read " << categories.size() << " categories \n";
 
-	//A.3 read menu items	//should error check
-	ist >> num_items;	//get number of menu items
-	menu_items.clear();	//start with an empty list
-	read_file(ist, num_items, Menu_entry);
-	cout << "read " << menu_items.size() << " menu items \n";
-	ist.close();
-	return;
+  //A.3 read menu items	//should error check
+  ist >> num_items;	//get number of menu items
+  menu_items.clear();	//start with an empty list
+  read_file(ist, num_items, Menu_entry);
+  cout << "read " << menu_items.size() << " menu items \n";
+  ist.close();
+  cat_fname = fname;
+  return;
 }
 
 void ROMS_Menu::show() const 
 {	//Below is some old code from Part I. What changes, if any are needed for Part II?
 	//B.1, a, b, c merge	//cout << "Show queries \n";
-	cout << "Enter Show query number:" << endl << "1-Menu Item Recipe 2-All Menu Items by Chef 3-All Menu Items in a Category\n";
-	int query_num;
-	cin >> query_num;
-	switch (query_num) 
-	{
-	case 1:
-		{
-			//B.1.a show a Menu Item Recipe
-			string item_name;
-			int i;
-			cout <<"Enter Menu Item Name\n";
-			cin >> item_name;
-			for (i = 0; i < (int) menu_items.size(); ++i)
-				if (menu_items[i].get_name() == item_name) break;
-			if (i == (int) menu_items.size()) {
-				cout << "Menu Name Not Found\n";
-				break;
-			}
-			else {//found Menu Item, now find recipe and print it
-				cout << menu_items[i].get_description() << endl;
-				int rec_id = menu_items[i].get_recipe_id();
-				int j;
-				for (j = 0; j < (int) recipes.size(); ++j)
-					if(rec_id == recipes[j].get_rec_id()) break;
-				if (j == (int) recipes.size()) {
-					cout << "Recipe ID not found -- data bug\n";
-					break;
-				}
-				//print recipe j
-				cout << recipes[j].display() << endl;
-				//retrieve and print recipe j ingredients
-				for (int k = 0; k < (int) ingredients.size(); ++k)
-					if(rec_id == ingredients[k].get_rec_id()) cout << ingredients[k].display() << endl;
-				cout << endl;
-			}
-		}
-	case 2: 
-		{
-			//B.1.b list All Menu Items by Chef
-			cout << menu_items.size() << " menu items sorted by chef\n";
-			vector<Recipe> temp_recipes = recipes;
-			//sort the recipes by chef, then print the menu items in the order of their recipe
-			sort(temp_recipes.begin(), temp_recipes.end(), SortRecipesByChef());
-			for (int i = 0; i< (int) temp_recipes.size(); ++i) {
-				cout << "Chef: " << temp_recipes[i].get_chef() << endl;
-				//loop thru sorted recipes and print requested coresponding Menu_Item info
-				for (int j = 0; j< (int) menu_items.size(); ++j)
-					if (menu_items[j].get_recipe_id() == temp_recipes[i].get_rec_id())
-							cout << '\t' << menu_items[i].display() << endl;
-			}
-			cout << endl;
-			break;
-		}
-	case 3:
-		{
-			//B.1.c All Menu Items in a Category
-			cout << "Not implemented";
-			cout << endl;
-			break;
-		}
+  cout << "Enter Show query number:" << endl << "1-Menu Item Recipe 2-All Menu Items by Chef 3-All Menu Items in a Category\n";
+  int query_num;
+  cin >> query_num;
+  switch (query_num) 
+    {
+    case 1:
+      {
+	//B.1.a show a Menu Item Recipe
+	string item_name;
+	int i;
+	cout <<"Enter Menu Item Name\n";
+	cin >> item_name;
+	for (i = 0; i < (int) menu_items.size(); ++i)
+	  if (menu_items[i].get_name() == item_name) break;
+	if (i == (int) menu_items.size()) {
+	  cout << "Menu Name Not Found\n";
+	  break;
+	}
+	else {//found Menu Item, now find recipe and print it
+	  cout << menu_items[i].get_description() << endl;
+	  int rec_id = menu_items[i].get_recipe_id();
+	  int j;
+	  for (j = 0; j < (int) recipes.size(); ++j)
+	    if(rec_id == recipes[j].get_rec_id()) break;
+	  if (j == (int) recipes.size()) {
+	    cout << "Recipe ID not found -- data bug\n";
+	    break;
+	  }
+	  //print recipe j
+	  cout << recipes[j].display() << endl;
+	  //retrieve and print recipe j ingredients
+	  for (int k = 0; k < (int) ingredients.size(); ++k)
+	    if(rec_id == ingredients[k].get_rec_id()) cout << ingredients[k].display() << endl;
+	  cout << endl;
+	}
+      }
+    case 2: 
+      {
+	//B.1.b list All Menu Items by Chef
+	cout << menu_items.size() << " menu items sorted by chef\n";
+	vector<Recipe> temp_recipes = recipes;
+	//sort the recipes by chef, then print the menu items in the order of their recipe
+	sort(temp_recipes.begin(), temp_recipes.end(), SortRecipesByChef());
+	for (int i = 0; i< (int) temp_recipes.size(); ++i) {
+	  cout << "Chef: " << temp_recipes[i].get_chef() << endl;
+	  //loop thru sorted recipes and print requested coresponding Menu_Item info
+	  for (int j = 0; j< (int) menu_items.size(); ++j)
+	    if (menu_items[j].get_recipe_id() == temp_recipes[i].get_rec_id())
+	      cout << '\t' << menu_items[i].display() << endl;
+	}
+	cout << endl;
+	break;
+      }
+    case 3:
+      {
+	//B.1.c All Menu Items in a Category
+	cout << "Not implemented";
+	cout << endl;
+	break;
+      }
 	
 	default:
 		cout << "Invalid request\n";
@@ -414,4 +422,85 @@ string ROMS_Menu::show_button(Msg_type type)
 	default:
 		throw InvalidType();
 	}
+}
+
+//RCD B.1 ----
+void ROMS_Menu::write_catmenu(string fname) const {
+  if(fname != "-1") {
+    ofstream new_catmenu(fname.c_str());
+    
+    if(new_catmenu.is_open())
+      {
+	new_catmenu << categories.size() << endl;
+	for(unsigned int i = 0; i < categories.size(); i++)
+	  {
+	    new_catmenu << categories[i].ID() << "\t" << categories[i].name() << endl;
+	  }
+	new_catmenu << menu_items.size() << endl;
+	for(unsigned int i = 0; i < menu_items.size(); i++)
+	  {
+	    new_catmenu << menu_items[i].get_menu_item_id() << "\t" << menu_items[i].cat() << "\t" << menu_items[i].get_recipe_id() << "\t" << menu_items[i].get_name() << "\t" << menu_items[i].get_price() << "\t" << menu_items[i].get_description() << "\t#\t" << endl;
+	  }
+	new_catmenu.close();
+	cout << "Succesfully wrote catmenu.dat. \n";
+      }
+    else
+      {
+	cout << "Error while writing catmenu.dat" << endl << endl;
+      }
+  }
+  else
+    cout << "No update needed for recipes.dat\n";
+}
+	
+void ROMS_Menu::write_orders(string fname) const{
+  if(fname != "-1") {
+    ofstream orders_write(fname.c_str());
+    if(orders_write.is_open()) {
+      orders_write << orders.size() << '\n';
+      for(unsigned int i = 0; i < orders.size(); i++) {
+	orders_write << orders[i].get_order_id() << '\t' << orders[i].server() << '\t' << orders[i].get_table_id() << '\t' << orders[i].o_date().year() << '\t' << orders[i].o_date().month() << '\t' << orders[i].o_date().day() << '\t' << orders[i].o_time().get_hour() << '\t' << orders[i].o_time().get_minute() << '\n';
+      }
+      orders_write << '\n' << order_items.size() << '\n';
+      for(unsigned int i = 0; i < order_items.size(); i++) {
+	orders_write << order_items[i].seat() << '\t' << order_items[i].get_order_id() << '\t' << order_items[i].get_menu_item_id() << '\t' << order_items[i].get_qty() << '\n';
+      }
+      orders_write.close();
+      cout << "Writing orders.dat was successful.\n";
+    }
+    else
+      cout << "Error occured while writing orders.dat.\n";
+  }
+  else
+    cout << "No update needed for recipes.dat\n";
+}
+ 
+void ROMS_Menu::write_recipes(string fname) const{
+  if(fname != "-1") {
+    ofstream recipes_write(fname.c_str());
+    if(recipes_write.is_open()) {
+      recipes_write << ingredients.size() << '\n';
+      for(unsigned int i = 0; i < ingredients.size(); i++) {
+	recipes_write << ingredients[i].get_ing_id() << '\t' << ingredients[i].get_rec_id() << '\t' << ingredients[i].get_amt() << '\t' << ingredients[i].get_units() << '\t' << ingredients[i].get_name() << '\n';
+      }
+      recipes_write << '\n' << recipes.size() << '\n';
+      for(unsigned int i = 0; i < recipes.size(); i++) {
+	recipes_write << recipes[i].get_rec_id() << '\t' << recipes[i].get_chef() << '\t' << recipes[i].instruc().display() << "\t#\n\n";
+      }
+      recipes_write.close();
+      cout << "Writing recipes.dat was successful.\n";
+    }
+    else
+      cout << "Error occured while writing recipes.dat.\n";
+  }
+  else
+    cout << "No update needed for recipes.dat\n";
+}
+
+void ROMS_Menu::write_all() const{
+  write_orders(ord_fname);
+  write_recipes(rec_fname);
+  write_catmenu(cat_fname);
+}
+//end RCD B.1 ----
 }

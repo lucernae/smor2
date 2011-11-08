@@ -13,6 +13,7 @@
 #include "Ingredient.h"
 #include "Order.h"
 #include "Order_Item.h"
+#include "std_lib_facilities.h"
 
 using namespace std;
 
@@ -64,6 +65,11 @@ public:
    void read_recipes_ingredients(string);
    void Read_orders(string);
    void read_catprds(string);
+   void write_orders(string) const; //RCD B1
+   void write_recipes(string) const; //RCD B1
+   void write_catmenu(string) const; //RCD B1
+   void write_all() const; //RCD B1
+
    	
    //show functions added to support GUI interface
    string show_button(Msg_type);
@@ -161,6 +167,9 @@ private:
 	int get_file_info(ifstream& ist, string prompt, string fname);	//A.1,2,3 merge added a function for common code
 	void read_file(ifstream& file, int num_rec, Rec_type ftype);
 	string get_long_string(ifstream& ist);
+	string rec_fname; //RCD B.1
+	string ord_fname; //RCD B.1
+	string cat_fname; //RCD B.1
 };
 } //end namespace ROMS
 

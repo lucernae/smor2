@@ -19,6 +19,10 @@ public:
 		return oss.str();
 	}
 	int get_rec_id() const {return recipe_id;} //B.1.a
+  int get_ing_id() const {return ingredient_id;}
+  float get_amt() const {return amt;}
+  string get_units() const {return units;}
+  string get_name() const {return name;}
 
 private:
    //constants  

@@ -32,7 +32,16 @@ public:
 		return oss.str();
 	}
 
-	int get_cat_id() const {return cat_id; } // RMN 
+  int ID() const {
+    return cat_id;
+  }
+
+  int get_cat_id() const {return cat_id; } // RMN 
+
+  string name() const {
+    return cat_name;
+  }
+
 
 private:
    //constants

@@ -41,6 +41,7 @@ public:
 	string get_description() const {return descr.display();}	//B.1.a
 	int get_menu_item_id() const {return menu_item_id;}	//B.2.a
 	double get_price() const {return price;}	//B.2.a
+	int get_cat_id() const {return cat_id;} // RMN
 private:
    //constants
      

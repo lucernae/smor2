@@ -389,6 +389,7 @@ string ROMS_Menu::get_long_string(ifstream& file)
 
 string ROMS_Menu::show_button(Msg_type type)
 {
+	ostringstream oss;
 	switch(type) {
 	case Tables_button:
 	case Show_recipe: //## Ecky B2 (Weird naming? "Tables_button" for showing recipes?) 
@@ -399,14 +400,16 @@ string ROMS_Menu::show_button(Msg_type type)
 		return show_tabular_func(orders, "Orders");
 
 	case Categories_button:
+	case Show_categories: // RMN B3
 		return show_func(categories, "Category");
 
 	case Menu_items_button:
 	case Show_menu: //## Ecky B2
 		return show_tabular_func(menu_items, "Menu Items");
 
-	case Recipes_button:
-		return show_func(order_items, "Order Items");
+	case Recipes_button: // RMN B3 ?Recipes button for showing order items??? Is that right?
+	case Show_order_items: // well, just use it anyway....
+		return show_func(order_items, "Order Items"); 
 
 	default:
 		throw InvalidType();

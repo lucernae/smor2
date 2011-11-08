@@ -7,6 +7,7 @@
 
 #include <string>
 #include <sstream>
+#include <iomanip> // RMN add include
 using namespace std;
 
 struct Category {
@@ -16,11 +17,22 @@ public:
 	Category (int id, string n)
 		:cat_id(id), cat_name(n) {}
     // utility functions
-	string display() const {	
+	// RMN added function
+	static string display_headers(){
 		ostringstream oss;
-		oss << cat_id << " " << cat_name ;
+		oss		<< left << setw(12)<< "Category ID"
+				<< "Category Name";
 		return oss.str();
 	}
+
+	string display() const {	
+		ostringstream oss;
+		//oss << cat_id << " " << cat_name ;
+		oss << left << setw(12) << cat_id << cat_name; // RMN add some formatting
+		return oss.str();
+	}
+
+	int get_cat_id() const {return cat_id; } // RMN 
 
 private:
    //constants

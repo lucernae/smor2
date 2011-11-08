@@ -73,6 +73,9 @@ namespace Graph_lib {
 
 //header declarations
 void do_about_box(Window&);
+// RMN add header declaration
+void do_help_box(Window&);
+
 void do_read(Window&, ROMS_Menu&, string, string, Msg_type);
 void Main_Window_CB(Fl_Widget*, void*);
 void Menu_Bar_CB (Fl_Widget*, void*);
@@ -100,6 +103,8 @@ Fl_Menu_Item menu_bar[] = {
  {"Orders", 0,  (Fl_Callback*)Main_Window_CB, Address (Show_order), 0, FL_NORMAL_LABEL, 0, 14, 0},
  {"Recipes", 0,  (Fl_Callback*)Main_Window_CB, Address (Show_recipe), 0, FL_NORMAL_LABEL, 0, 14, 0},
  {"Menu Items", 0,  (Fl_Callback*)Main_Window_CB, Address (Show_menu), 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {"Categories", 0,  (Fl_Callback*)Main_Window_CB, Address (Show_categories), 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {"Order Items", 0,  (Fl_Callback*)Main_Window_CB, Address (Show_order_items), 0, FL_NORMAL_LABEL, 0, 14, 0},
  {0,0,0,0,0,0,0,0,0},
  {"Find", 0,  0, 0, 64, FL_NORMAL_LABEL, 0, 14, 0},
  {"Category Sales", 0,  (Fl_Callback*)Main_Window_CB, Address (Find_category_sales), 0, FL_NORMAL_LABEL, 0, 14, 0},
@@ -141,7 +146,7 @@ void mi_cb(Address addr, Address) // callback for menu item button
 }
 void oi_cb(Address addr, Address) // callback for order item button
 {
-	Main_Window_CB((Fl_Widget*) addr, Address (Recipes_button));
+	Main_Window_CB((Fl_Widget*) addr, Address (Recipes_button)); // RMN B3 I think it is supposed to be order items though...
 }
  void display_cb(Address addr, Address) // callback for display window
 {
@@ -231,7 +236,12 @@ int main()
 				case About_info:
 					do_about_box(sw);
 					break;
+					// RMN add new case
+				case About_help:
+					do_help_box(sw);
+					break;
 				case Tables_button: case Orders_button: case Categories_button: case Recipes_button: case Menu_items_button:
+				case Show_categories: case Show_order_items: // RMN B.3
 				case Show_menu: case Show_recipe: case Show_order: //## Ecky B2
 					t.set_buffer(m.show_button((Msg_type) window_userdata).c_str());
 					break;
@@ -268,6 +278,34 @@ void do_about_box(Window& w)
 	return;
 }
 
+// RMN create help window
+void do_help_box(Window& w)
+{
+	Window ab(Point(w.x()+100, w.y()+100), 500, 220, "Help Box");
+	ab.color(Color::white);
+	ab.callback((Fl_Callback*)Menu_Bar_CB, Address (Close_about_box));
+	Text msg[]={
+		Text(Point(15,50), "Restaurant Order Management System\n\n"),
+		Text(Point(15,70), ""),
+		Text(Point(15,90), "Use Read menu to read the data from file\n"),
+		Text(Point(15,110), "Use Show menu to show the data\n"),
+		Text(Point(15,130), "Use Find menu to find out about the restaurant's sales\n"),
+		Text(Point(15,150), "Use Update menu to change data\n"),
+		Text(Point(15,170), "Use About menu to get information about this program and get help\n"),
+		Text(Point(15,190), "Use Exit menu to exit and write changes to files\n")
+	};
+	for(int i=0;i<7;i++)
+	{
+		msg[i].set_color(Color::black);
+		ab.attach(msg[i]);
+	}
+	wait_for_menu_bar_click();
+	for(int i=0;i<7;i++)
+	{
+		ab.detach(msg[i]);//clean up window
+	}
+	return;
+}
 
 void do_read(Window& w, ROMS_Menu& m, string dfn, string msg, Msg_type type)
 {

@@ -450,7 +450,7 @@ void ROMS_Menu::write_catmenu(string fname) const {
       }
   }
   else
-    cout << "No update needed for recipes.dat\n";
+    cout << "No update needed for catmenu.dat\n";
 }
 	
 void ROMS_Menu::write_orders(string fname) const{
@@ -472,7 +472,7 @@ void ROMS_Menu::write_orders(string fname) const{
       cout << "Error occured while writing orders.dat.\n";
   }
   else
-    cout << "No update needed for recipes.dat\n";
+    cout << "No update needed for orders.dat\n";
 }
  
 void ROMS_Menu::write_recipes(string fname) const{

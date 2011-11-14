@@ -76,6 +76,11 @@ void do_about_box(Window&);
 // RMN add header declaration
 void do_help_box(Window&);
 
+
+void do_find_categ_sales(Window&, ROMS_Menu&); //EP C
+void do_add_order_item(Window&, ROMS_Menu&); //EP C
+void show_msg_box(Window&, String& msg); //EP C
+
 void do_read(Window&, ROMS_Menu&, string, string, Msg_type);
 void Main_Window_CB(Fl_Widget*, void*);
 void Menu_Bar_CB (Fl_Widget*, void*);
@@ -85,6 +90,7 @@ bool main_window_click = false;
 bool menu_bar_click = false;
 bool main_click_enabled = true;//used to force serialization on clicks
 int window_userdata;
+int menu_bar_userdata; //EP C
 
 //main window menu bar
 //Note: for expediancy sake, to define the menu bar below we used an FLTK type Fl_Menu_Item. 
@@ -157,8 +163,16 @@ void oi_cb(Address addr, Address) // callback for order item button
 	 Menu_Bar_CB((Fl_Widget*) addr, Address (Menu_bar_cb));
  }
 
+ //EP C
+ template <Address T>
+ void general_menu_bar_cb(Address addr, Address)//callback for menu bar
+ {
+	 Menu_Bar_CB((Fl_Widget*) addr, T);
+ }
+
 void Menu_Bar_CB (Fl_Widget*, void* ud) {
 	cout << "Menu Bar Callback" << " Userdata=" << (int) ud << "\n";
+	menu_bar_userdata = (int) ud; //EP C
 	menu_bar_click = true;
 }
 
@@ -249,6 +263,14 @@ int main()
 					cout << "save files and exit\n";
 					m.write_all(); //RCD B.1
 					exit(0); //exit program
+					break;
+				//EP C
+				case Find_category_sales:
+					do_find_categ_sales(sw, m);
+					break;
+				//EP C
+				case Update_add_order_item:
+					do_add_order_item(sw, m);
 					break;
 				default:
 					cout << "case not implemented\n";
@@ -356,4 +378,134 @@ void do_read(Window& w, ROMS_Menu& m, string dfn, string msg, Msg_type type)
 		}
 	}
 	return;
+}
+
+//EP C
+void do_find_categ_sales(Window& w, ROMS_Menu& menu) {
+	//create window
+	Window ab(Point(w.x()+100, w.y()+100), 300, 80, "Add Order Item");
+	ab.color(Color::white);
+	ab.callback((Fl_Callback*)Menu_Bar_CB, Address (Close_about_box));
+
+	////create UI Components
+	//text
+	Text sel_cat_txt(Point(10, 25), "Select Category:");
+	ab.attach(sel_cat_txt);
+
+	//drop down
+	Fl_Choice c(120, 10, 100, 20);
+	ab.add(c);
+	c.callback((Fl_Callback*)Menu_Bar_CB, Address(Find_category_sales));
+	vector<Category>& categories = menu.get_categories();
+	for(int i = 0; i < categories.size(); ++i) {
+		c.add(categories[i].name().c_str());
+	}
+
+	//text
+	Text sum_txt(Point(100, 50), "");
+	ab.attach(sum_txt);
+
+	bool exit = false;
+	while(!exit) {
+		wait_for_menu_bar_click();
+		//if drop down menu changed
+		if(menu_bar_userdata == Find_category_sales) {
+			stringstream ss;
+			ss << "Total Sales: " << menu.get_category_total_sales(categories[c.value()].get_cat_id());
+			sum_txt.set_label(ss.str());
+		}
+		
+		//anything else
+		else {
+			exit = true;
+		}
+	}
+}
+
+//EP C
+void do_add_order_item(Window& w, ROMS_Menu& menu) {
+	//create window
+	Window ab(Point(w.x()+100, w.y()+100), 220, 220, "Add Order Item");
+	ab.color(Color::white);
+	ab.callback((Fl_Callback*)Menu_Bar_CB, Address (Close_about_box));
+
+	////create UI components
+	//params
+	int input_height  = 20;
+	int input_offset_x= 100;
+	int input_offset_y= 10;
+	int input_spacing = 30;
+	int input_width = 100;
+
+	//texts
+	Text seat_id_txt		(Point(5, input_offset_y + input_spacing * 0 + 15), "Seat ID");
+	Text order_id_txt		(Point(5, input_offset_y + input_spacing * 1 + 15), "Order ID");
+	Text menu_item_id_txt	(Point(5, input_offset_y + input_spacing * 2 + 15), "Menu Item ID");
+	Text prod_qty_txt		(Point(5, input_offset_y + input_spacing * 3 + 15), "Qty");
+	ab.attach(seat_id_txt);
+	ab.attach(order_id_txt);
+	ab.attach(menu_item_id_txt);
+	ab.attach(prod_qty_txt);
+	
+	//inputs
+	Fl_Input seat_id		(input_offset_x, input_offset_y + input_spacing * 0, input_width, input_height);
+	Fl_Input order_id		(input_offset_x, input_offset_y + input_spacing * 1, input_width, input_height);
+	Fl_Input menu_item_id	(input_offset_x, input_offset_y + input_spacing * 2, input_width, input_height);
+	Fl_Input prod_qty		(input_offset_x, input_offset_y + input_spacing * 3, input_width, input_height);
+	ab.add(seat_id);
+	ab.add(order_id);
+	ab.add(menu_item_id);
+	ab.add(prod_qty);
+
+	//button
+	Button add(
+		Point(input_offset_x, input_offset_y + input_spacing * 4), 
+		input_width, 30, 
+		"Add", 
+		general_menu_bar_cb<Address(Update_add_order_item)>
+	);
+	ab.attach(add);
+	
+	//process this window's logic
+	bool exit = false;
+	while(!exit) {
+		//wait for anything to happen at the window
+		wait_for_menu_bar_click();
+
+		////parse command
+		//user click the add button
+		if(menu_bar_userdata == Update_add_order_item) {
+			//create an order_item based on user's input
+			stringstream ss;
+			ss << seat_id.value() << " " << order_id.value() << " " << menu_item_id.value() << " " << prod_qty.value();
+			Order_Item oi;
+			if(!(ss >> oi)) {
+				show_msg_box(ab, String("Invalid Input!"));
+			} else {
+				//add that item to database
+				String msg;
+				exit = menu.addOrderItem(oi, msg);
+				show_msg_box(ab, msg);
+			}
+
+		}
+		
+		//user click other things
+		else {
+			exit = true;
+		}
+	}
+}
+
+//EP C
+void show_msg_box(Window& w, String& msg) {
+	//create window
+	Window ab(Point(w.x()+100, w.y()+100), 200, 50, "");
+	ab.color(Color::white);
+	ab.callback((Fl_Callback*)Menu_Bar_CB, Address (Close_about_box));
+	Text txt(Point(10, 30), msg);
+	ab.attach(txt);
+	
+	//wait for anything to happen at the window
+	wait_for_menu_bar_click();
 }

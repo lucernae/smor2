@@ -25,6 +25,15 @@ public:
 		oss << left << setw(9) << seat_id << left << setw(10) << order_id << left << setw(13) << menu_item_id << left << setw(9) << prod_qty;
 		return oss.str();
 	}
+
+	//EP C
+	friend istream& operator>>(istream& stream, Order_Item& o)
+	{
+		return stream >> o.seat_id >> o.order_id >> o.menu_item_id >> o.prod_qty;
+	}
+
+
+
 	int get_order_id() const {return order_id;}	//B.2.a
 	int get_qty() const {return prod_qty;}	//B.2.a
 	int get_menu_item_id() const {return menu_item_id;}	//B.2.a

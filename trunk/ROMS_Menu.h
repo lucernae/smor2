@@ -70,6 +70,15 @@ public:
    void write_catmenu(string) const; //RCD B1
    void write_all() const; //RCD B1
 
+   //Getters
+   vector<Category>& const get_categories()		{ return categories; } //EP C
+
+   double get_category_total_sales(int catId); //EP C
+
+   //Add a new order item to the system, returns true if added succesfully
+   //out_msg will contain the message from system
+   bool addOrderItem(Order_Item& o, String& out_msg); //EP C
+
    	
    //show functions added to support GUI interface
    string show_button(Msg_type);

@@ -503,4 +503,79 @@ void ROMS_Menu::write_all() const{
   write_catmenu(cat_fname);
 }
 //end RCD B.1 ----
+
+//EP C
+bool ROMS_Menu::addOrderItem(Order_Item& o, String& out_msg) {
+	String msg = "Added Successfuly!";
+	bool pass = true;
+
+	int n = 0;
+	if(pass) {
+		//check that order_id exists
+		n = 0;
+		for(n=0; n<(int)orders.size(); ++n)
+			if(orders[n].get_order_id() == o.get_order_id()) break;
+		if(!(n < (int)orders.size())||!cin) {
+			msg = "Invalid Order Id!";
+			pass = false;
+		}
+	}
+
+	if(pass) {
+		//check that menu item id exists
+		n = 0;
+		for(n=0; n<(int)menu_items.size(); ++n)
+			if(menu_items[n].get_menu_item_id() == o.get_menu_item_id()) break;
+		if(!(n < (int)menu_items.size())||!cin) {
+			msg = "Invalid Menu Item ID!";
+			pass = false;
+		}
+	}
+
+	if(pass) {
+		//check that quantity is positive--maybe should check some reasonable upper bound, too?
+		if(o.get_qty() < 1) {
+			msg = "Invalid quantity!";
+			pass = false;
+		}
+	}
+
+	if(pass) {
+		//check that seat is valid
+		if(o.seat() < "A" || o.seat() > "H") {
+			msg = "Invalid seat ID!";
+			pass = false;
+		}
+	}
+
+	if(pass) {
+		order_items.push_back(o);
+	}
+
+	//put the message
+	out_msg = msg;
+
+	//returns true indicating added success
+	return pass;
+}
+
+//EP C
+double ROMS_Menu::get_category_total_sales(int catId) {
+	double sum = 0;
+	for(int i = 0; i < order_items.size(); ++i) {
+		int mid = order_items[i].get_menu_item_id();
+		for(int j = 0; j < menu_items.size(); ++j) {
+			if(
+				menu_items[j].get_menu_item_id() == mid && 
+				menu_items[j].get_cat_id() == catId
+			) {
+				sum += menu_items[j].get_price();
+				break;
+			}
+		}
+	}
+
+	return sum;
+}
+
 }

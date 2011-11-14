@@ -79,7 +79,6 @@ void do_help_box(Window&);
 
 void do_find_categ_sales(Window&, ROMS_Menu&); //EP C
 void do_add_order_item(Window&, ROMS_Menu&); //EP C
-void show_msg_box(Window&, String& msg); //EP C
 
 void do_read(Window&, ROMS_Menu&, string, string, Msg_type);
 void Main_Window_CB(Fl_Widget*, void*);
@@ -402,7 +401,7 @@ void do_find_categ_sales(Window& w, ROMS_Menu& menu) {
 	}
 
 	//text
-	Text sum_txt(Point(100, 50), "");
+	Text sum_txt(Point(120, 50), "");
 	ab.attach(sum_txt);
 
 	bool exit = false;
@@ -411,7 +410,7 @@ void do_find_categ_sales(Window& w, ROMS_Menu& menu) {
 		//if drop down menu changed
 		if(menu_bar_userdata == Find_category_sales) {
 			stringstream ss;
-			ss << "Total Sales: " << menu.get_category_total_sales(categories[c.value()].get_cat_id());
+			ss << "Total Sales: $" << menu.get_category_total_sales(categories[c.value()].get_cat_id());
 			sum_txt.set_label(ss.str());
 		}
 		
@@ -442,10 +441,12 @@ void do_add_order_item(Window& w, ROMS_Menu& menu) {
 	Text order_id_txt		(Point(5, input_offset_y + input_spacing * 1 + 15), "Order ID");
 	Text menu_item_id_txt	(Point(5, input_offset_y + input_spacing * 2 + 15), "Menu Item ID");
 	Text prod_qty_txt		(Point(5, input_offset_y + input_spacing * 3 + 15), "Qty");
+	Text status_txt			(Point(5, input_offset_y + input_spacing * 4 + 15), "");
 	ab.attach(seat_id_txt);
 	ab.attach(order_id_txt);
 	ab.attach(menu_item_id_txt);
 	ab.attach(prod_qty_txt);
+	ab.attach(status_txt);
 	
 	//inputs
 	Fl_Input seat_id		(input_offset_x, input_offset_y + input_spacing * 0, input_width, input_height);
@@ -459,7 +460,7 @@ void do_add_order_item(Window& w, ROMS_Menu& menu) {
 
 	//button
 	Button add(
-		Point(input_offset_x, input_offset_y + input_spacing * 4), 
+		Point(input_offset_x, input_offset_y + input_spacing * 5), 
 		input_width, 30, 
 		"Add", 
 		general_menu_bar_cb<Address(Update_add_order_item)>
@@ -480,12 +481,12 @@ void do_add_order_item(Window& w, ROMS_Menu& menu) {
 			ss << seat_id.value() << " " << order_id.value() << " " << menu_item_id.value() << " " << prod_qty.value();
 			Order_Item oi;
 			if(!(ss >> oi)) {
-				show_msg_box(ab, String("Invalid Input!"));
+				status_txt.set_label("Invalid Input!");
 			} else {
 				//add that item to database
 				String msg;
 				exit = menu.addOrderItem(oi, msg);
-				show_msg_box(ab, msg);
+				status_txt.set_label(msg);
 			}
 
 		}
@@ -495,17 +496,4 @@ void do_add_order_item(Window& w, ROMS_Menu& menu) {
 			exit = true;
 		}
 	}
-}
-
-//EP C
-void show_msg_box(Window& w, String& msg) {
-	//create window
-	Window ab(Point(w.x()+100, w.y()+100), 200, 50, "");
-	ab.color(Color::white);
-	ab.callback((Fl_Callback*)Menu_Bar_CB, Address (Close_about_box));
-	Text txt(Point(10, 30), msg);
-	ab.attach(txt);
-	
-	//wait for anything to happen at the window
-	wait_for_menu_bar_click();
 }

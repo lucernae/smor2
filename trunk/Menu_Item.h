@@ -44,7 +44,7 @@ public:
 
 	int get_cat_id() const {return cat_id;} // RMN
 
-  int cat() const {return cat_id;}
+	int cat() const {return cat_id;}
 
 private:
    //constants

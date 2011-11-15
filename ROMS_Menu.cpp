@@ -505,8 +505,8 @@ void ROMS_Menu::write_all() const{
 //end RCD B.1 ----
 
 //EP C
-bool ROMS_Menu::addOrderItem(Order_Item& o, String& out_msg) {
-	String msg = "Added Successfuly!";
+bool ROMS_Menu::addOrderItem(Order_Item& o, string& out_msg) {
+	string msg = "Added Successfuly!";
 	bool pass = true;
 
 	int n = 0;
@@ -578,4 +578,105 @@ double ROMS_Menu::get_category_total_sales(int catId) {
 	return sum;
 }
 
+
+
+// RMN C
+double ROMS_Menu::get_table_sales(int table_id) {
+	// RMN C I'm just reusing the code in find function
+	double sales_total = 0;
+	//total up all sales for this table.
+	for (int i = 0; i < (int)orders.size(); ++i)
+	{
+		//select an order that includes this table
+		if(table_id == orders[i].get_table_id())
+		{
+			//add this order sales to the table sales total
+			int order_id = orders[i].get_order_id();
+			for (int j = 0; j < (int)order_items.size(); ++j)
+				//select an order item for the current order
+				if(order_id == order_items[j].get_order_id()) {
+					int menu_item_id = order_items[j].get_menu_item_id();
+					double item_price = 0.;
+					for (int k = 0; k < (int) menu_items.size(); ++k) 
+						if(menu_item_id == menu_items[k].get_menu_item_id()) 
+						{
+							item_price = menu_items[k].get_price();
+							break;
+						}
+						//add the sale of this item to the table total
+						sales_total += item_price * order_items[j].get_qty();
+				}
+		}
+	}
+	return sales_total;
+}
+
+// RMN C
+vector<int> const ROMS_Menu::get_table_ids()
+{
+	vector<int> table_ids;
+	// iterate each order
+	for(unsigned int i=0;i<orders.size();i++)
+	{
+		// iterate each table_ids
+		bool included=false;
+		for(unsigned int j=0;j<table_ids.size();j++)
+		{
+			if(table_ids[j]==orders[i].get_table_id())
+			{
+				// this table id was included before
+				included=true;
+				break;
+			}
+		}
+		if(included==false)
+		{
+			table_ids.push_back(orders[i].get_table_id());
+		}
+	}
+	return table_ids;
+}
+
+// RMN C
+bool ROMS_Menu::addMenuItem(Menu_Item& m, string& out_msg)
+{
+	// Add new menu item using an existing recipe to an existing category
+	string msg="Added Successfully!";
+	bool pass=true;
+	// check menu item id exist
+	unsigned int i=0;
+	for(i=0;i<menu_items.size();i++)
+		if(m.get_menu_item_id() == menu_items[i].get_menu_item_id())
+			break;
+	// if lower than menu_items.size() then, it is exist
+	if(i<menu_items.size())
+	{
+		msg="Invalid Menu Item ID";
+		pass=false;
+	}
+	// check menu item name
+	if(pass)
+	{
+		// menu item name cannot contain whitespace
+		for(i=0;i<m.get_name().size();i++)
+		{
+			if(m.get_name().c_str()[i]==' ' || m.get_name().c_str()[i]=='\n' || m.get_name().c_str()[i]=='\t')
+			{
+				break;
+			}
+		}
+		if(i<m.get_name().size())
+		{
+			msg="Menu Item Name cannot contain whitespaces";
+			pass=false;
+		}
+	}
+	// add menu_item
+	if(pass)
+	{
+		menu_items.push_back(m);
+	}
+	out_msg=msg;
+	return pass;
+}
 }

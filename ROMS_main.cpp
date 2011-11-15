@@ -79,6 +79,8 @@ void do_help_box(Window&);
 
 void do_find_categ_sales(Window&, ROMS_Menu&); //EP C
 void do_add_order_item(Window&, ROMS_Menu&); //EP C
+void do_find_table_sales(Window&, ROMS_Menu&); // RMN C
+void do_update_add_menu_item(Window&, ROMS_Menu&); // RMN C
 
 void do_read(Window&, ROMS_Menu&, string, string, Msg_type);
 void Main_Window_CB(Fl_Widget*, void*);
@@ -271,6 +273,13 @@ int main()
 				case Update_add_order_item:
 					do_add_order_item(sw, m);
 					break;
+				//RMN C
+				case Find_table_sales:
+					do_find_table_sales(sw,m);
+					break;
+				case Update_add_menu_item:
+					do_update_add_menu_item(sw,m);
+					break;
 				default:
 					cout << "case not implemented\n";
 			}
@@ -328,8 +337,8 @@ void do_help_box(Window& w)
 	ab.color(Color::white);
 	ab.callback((Fl_Callback*)Menu_Bar_CB, Address (Close_about_box));
 	Text msg[]={
-		Text(Point(15,50), "Restaurant Order Management System\n\n"),
-		Text(Point(15,70), ""),
+		Text(Point(15,50), "Restaurant Order Management System\n"),
+		Text(Point(15,70), "\n"),
 		Text(Point(15,90), "Use Read menu to read the data from file\n"),
 		Text(Point(15,110), "Use Show menu to show the data\n"),
 		Text(Point(15,130), "Use Find menu to find out about the restaurant's sales\n"),
@@ -484,7 +493,7 @@ void do_add_order_item(Window& w, ROMS_Menu& menu) {
 				status_txt.set_label("Invalid Input!");
 			} else {
 				//add that item to database
-				String msg;
+				string msg;
 				exit = menu.addOrderItem(oi, msg);
 				status_txt.set_label(msg);
 			}
@@ -496,4 +505,175 @@ void do_add_order_item(Window& w, ROMS_Menu& menu) {
 			exit = true;
 		}
 	}
+}
+
+// RMN C create table sales window
+void do_find_table_sales(Window& w, ROMS_Menu& menu) 
+{
+	//create window
+	Window ab(Point(w.x()+100, w.y()+100), 300, 80, "Table Sales");
+	ab.color(Color::white);
+	ab.callback((Fl_Callback*)Menu_Bar_CB, Address (Close_about_box)); // it is bad, but just reuse the Close_about_box
+
+	////create UI Components
+	//text
+	Text sel_table_txt(Point(10, 25), "Select Table ID:");
+	ab.attach(sel_table_txt);
+
+	//drop down
+	Fl_Choice c(120, 10, 100, 20);
+	ab.add(c);
+	c.callback((Fl_Callback*)Menu_Bar_CB, Address(Find_table_sales)); // again, reuse
+	vector<int> table_ids(menu.get_table_ids());
+	for(unsigned int i=0;i<table_ids.size();i++)
+	{
+		stringstream s;
+		s<<table_ids[i];
+		c.add(s.str().c_str()); // too many str... lol...
+	}
+
+	//text
+	Text sum_txt(Point(120, 50), "");
+	ab.attach(sum_txt);
+
+	bool exit = false;
+	while(!exit) {
+		wait_for_menu_bar_click();
+		//if drop down menu changed
+		if(menu_bar_userdata == Find_table_sales) {
+			stringstream ss;
+			stringstream value;
+			value<<c.value();
+			int id;
+			value>>id;
+			ss << "Total Sales: $" << menu.get_table_sales(table_ids[id]);
+			sum_txt.set_label(ss.str());
+		}
+		
+		//anything else
+		else {
+			exit = true;
+		}
+	}
+}
+
+// RMN C
+void do_update_add_menu_item(Window& w, ROMS_Menu& m)
+{
+	int id,cat_id,rec_id;
+	string name,descr_text;
+	double amt;
+
+	// Create new window
+	Window ab(Point(w.x()+100, w.y()+100), 320, 320, "Add Menu Item");
+	ab.color(Color::white);
+	ab.callback((Fl_Callback*)Menu_Bar_CB, Address (Close_about_box));
+
+	////create UI components
+	//params
+	int input_height  = 20;
+	int input_offset_x= 100;
+	int input_offset_y= 10;
+	int input_spacing = 30;
+	int input_width = 100;
+
+	//texts
+	Text menu_item_id_txt  (Point(5, input_offset_y + input_spacing * 0 + 15), "Menu Item ID");
+	Text category_id_txt		(Point(5, input_offset_y + input_spacing * 1 + 15), "Category ID");
+	Text recipe_id_txt	(Point(5, input_offset_y + input_spacing * 2 + 15), "Recipe ID");
+	Text menu_item_name_txt	(Point(5, input_offset_y + input_spacing * 3 + 15), "Menu Name");
+	Text price_txt		(Point(5, input_offset_y + input_spacing * 4 + 15), "Price");
+	Text description_txt			(Point(5, input_offset_y + input_spacing * 5 + 15), "Description");
+	Text status_txt		(Point(5, input_offset_y + input_spacing * 6 + 15), "");
+	ab.attach(menu_item_id_txt);
+	ab.attach(category_id_txt);
+	ab.attach(recipe_id_txt);
+	ab.attach(menu_item_name_txt);
+	ab.attach(price_txt);
+	ab.attach(description_txt);
+	ab.attach(status_txt);
+
+	//inputs
+	Fl_Input menu_item_id	(input_offset_x, input_offset_y + input_spacing * 0, input_width, input_height);
+	Fl_Choice category_id	(input_offset_x, input_offset_y + input_spacing * 1, input_width, input_height);
+	Fl_Choice recipe_id		(input_offset_x, input_offset_y + input_spacing * 2, input_width, input_height);
+	Fl_Input menu_item_name	(input_offset_x, input_offset_y + input_spacing * 3, input_width, input_height);
+	Fl_Input price			(input_offset_x, input_offset_y + input_spacing * 4, input_width, input_height);
+	Fl_Input description	(input_offset_x, input_offset_y + input_spacing * 5, input_width, input_height);
+
+	vector<Category> categories=m.get_categories();
+	vector<Recipe> recipes=m.get_recipes();
+	for(unsigned int i=0;i<categories.size();i++)
+	{
+		stringstream ss;
+		ss<<categories[i].name();
+		category_id.add(ss.str().c_str());
+	}
+
+	for(unsigned int i=0;i<recipes.size();i++)
+	{
+		stringstream ss;
+		ss<<recipes[i].get_rec_id(); // we can only display recipe_id
+		recipe_id.add(ss.str().c_str());
+	}
+
+	ab.add(menu_item_id);
+	ab.add(category_id);
+	ab.add(recipe_id);
+	ab.add(menu_item_name);
+	ab.add(price);
+	ab.add(description);
+
+	//button
+	Button add(
+		Point(input_offset_x, input_offset_y + input_spacing * 7), 
+		input_width, 30, 
+		"Add", 
+		general_menu_bar_cb<Address(Update_add_menu_item)>
+	);
+	ab.attach(add);
+	
+	//process this window's logic
+	bool exit = false;
+	while(!exit) {
+		//wait for anything to happen at the window
+		wait_for_menu_bar_click();
+
+		////parse command
+		//user click the add button
+		if(menu_bar_userdata == Update_add_menu_item) {
+			//create an order_item based on user's input
+			// assumed that all input is valid;
+			stringstream ss;
+			ss<<menu_item_id.value()<<" "<<category_id.value()<<" "<<recipe_id.value()<<" "<<price.value();
+			ss>>id;
+			int c_id;
+			int r_id;
+			ss>>c_id;
+			ss>>r_id;
+			ss>>amt;
+			string msg;
+			name=menu_item_name.value();
+			descr_text=description.value();
+			if(!ss || ss.fail() || name.size()==0 || descr_text.size()==0)
+			{
+				msg="Invalid Input";
+			}
+			else
+			{
+				cat_id=categories[c_id].get_cat_id();
+				rec_id=recipes[r_id].get_rec_id();
+				Description desc(descr_text);
+				Menu_Item menu_item(id,cat_id,rec_id,name,amt,desc);
+				exit=m.addMenuItem(menu_item,msg);
+			}
+			status_txt.set_label(msg);
+		}
+		
+		//user click other things
+		else {
+			exit = true;
+		}
+	}
+
 }

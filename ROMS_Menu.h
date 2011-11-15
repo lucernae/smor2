@@ -72,13 +72,18 @@ public:
 
    //Getters
    vector<Category>& const get_categories()		{ return categories; } //EP C
+   vector<int> const get_table_ids(); // RMN C
+   vector<Recipe>& const get_recipes() { return recipes;} // RMN C
 
    double get_category_total_sales(int catId); //EP C
+   // querying list of table ids in orders vector
+   double get_table_sales(int table_id); // RMN C
 
    //Add a new order item to the system, returns true if added succesfully
    //out_msg will contain the message from system
-   bool addOrderItem(Order_Item& o, String& out_msg); //EP C
-
+   bool addOrderItem(Order_Item& o, string& out_msg); //EP C
+   // Add a new menu item, with similar spec with addOrderItem
+   bool addMenuItem(Menu_Item& m, string& out_msg); // RMN C
    	
    //show functions added to support GUI interface
    string show_button(Msg_type);

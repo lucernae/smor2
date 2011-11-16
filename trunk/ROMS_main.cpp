@@ -76,11 +76,16 @@ void do_about_box(Window&);
 // RMN add header declaration
 void do_help_box(Window&);
 
+void do_find_item_sales(Window&, ROMS_Menu&);	//RCD C.3 find sales for a menu item
+void do_add_recipe(Window&, ROMS_Menu&);	//RCD C.3 add new recipe
+
+
 
 void do_find_categ_sales(Window&, ROMS_Menu&); //EP C
 void do_add_order_item(Window&, ROMS_Menu&); //EP C
 void do_find_table_sales(Window&, ROMS_Menu&); // RMN C
 void do_update_add_menu_item(Window&, ROMS_Menu&); // RMN C
+
 
 void do_read(Window&, ROMS_Menu&, string, string, Msg_type);
 void Main_Window_CB(Fl_Widget*, void*);
@@ -265,6 +270,14 @@ int main()
 					m.write_all(); //RCD B.1
 					exit(0); //exit program
 					break;
+
+				case Find_menu_item_sales:
+					do_find_item_sales(sw, m);
+					break;
+				case Update_add_recipe:
+					do_add_recipe(sw, m);
+					break;
+
 				//EP C
 				case Find_category_sales:
 					do_find_categ_sales(sw, m);
@@ -280,6 +293,7 @@ int main()
 				case Update_add_menu_item:
 					do_update_add_menu_item(sw,m);
 					break;
+
 				default:
 					cout << "case not implemented\n";
 			}
@@ -327,6 +341,13 @@ void do_about_box(Window& w)
 	//end RCD B.1 ---
 	wait_for_menu_bar_click();
 	ab.detach(msg);//clean up window
+	ab.detach(team);
+	ab.detach(ecky_image);
+	ab.detach(ecky);
+	ab.detach(rizky_image);
+	ab.detach(rizky);
+	ab.detach(ross_image);
+	ab.detach(ross);	
 	return;
 }
 

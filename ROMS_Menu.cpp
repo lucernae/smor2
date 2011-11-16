@@ -504,6 +504,44 @@ void ROMS_Menu::write_all() const{
 }
 //end RCD B.1 ----
 
+
+double ROMS_Menu::total_menu_item_sales(int i) const //RCD C3
+{
+  int id = menu_items[i].get_menu_item_id();
+  int price = menu_items[i].get_price();
+  double total = 0;
+  vector<Order_Item> curr_orders;
+  for(unsigned int j = 0; j < order_items.size(); j++) {
+    if(id == order_items[j].get_menu_item_id()) {
+      curr_orders.push_back(order_items[j]);
+    }
+  }
+  for(unsigned int j = 0; j < curr_orders.size(); j++) {
+    total += price * curr_orders[j].get_qty();
+  }
+  return total;
+}
+
+bool ROMS_Menu::add_recipe(Recipe r, string& msg)
+{
+  bool exists = false;
+  for(unsigned int i = 0; i < recipes.size(); i++) {
+    if(r.get_rec_id() == recipes[i].get_rec_id()) {
+      exists = true;
+      msg = "ERROR: Recipe ID already exists.";
+      return false;
+    }
+  }
+  if(!exists) {
+    recipes.push_back(r);
+    msg = "Added new recipe.";
+    return true;
+  }
+  msg = "Unknown error.";
+  return false;
+}
+
+
 //EP C
 bool ROMS_Menu::addOrderItem(Order_Item& o, string& out_msg) {
 	string msg = "Added Successfuly!";
@@ -678,5 +716,6 @@ bool ROMS_Menu::addMenuItem(Menu_Item& m, string& out_msg)
 	}
 	out_msg=msg;
 	return pass;
+
 }
 }

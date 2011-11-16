@@ -70,6 +70,12 @@ public:
    void write_catmenu(string) const; //RCD B1
    void write_all() const; //RCD B1
 
+   bool add_recipe(Recipe, string&); //RCD C3
+   double total_menu_item_sales(int) const; //RCD C3
+   
+   vector<Menu_Item>& items() { return menu_items; }	//RCD C3
+
+
    //Getters
    vector<Category>& const get_categories()		{ return categories; } //EP C
    vector<int> const get_table_ids(); // RMN C
@@ -84,6 +90,7 @@ public:
    bool addOrderItem(Order_Item& o, string& out_msg); //EP C
    // Add a new menu item, with similar spec with addOrderItem
    bool addMenuItem(Menu_Item& m, string& out_msg); // RMN C
+
    	
    //show functions added to support GUI interface
    string show_button(Msg_type);

@@ -32,6 +32,7 @@ public:
 		out.push_back(instructions.substr(start));
 	}
 
+
 private:
    //constants
      

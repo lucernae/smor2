@@ -11,6 +11,7 @@ using namespace std;
 struct Recipe {
 public:
 	// constructors
+        Recipe () {}
 	Recipe (int id, string n, Instructions a)	//uncomment once you have added the type definition
 		: recipe_id(id), chef_name(n), instr(a) {}
 
@@ -41,6 +42,19 @@ public:
 	int get_rec_id() const {return recipe_id;}	//B.1.a
 	string get_chef()const {return chef_name;}	//B.1.b
   Instructions instruc() const {return instr;} //RCD B1
+
+  //RCD C.3
+  friend istream& operator>>(istream& stream, Recipe& r)
+  {
+    int id;
+    string chef, ins;
+    stream >> id >> chef >> ins;
+    if(!stream) {
+      return stream;
+    }
+    r = Recipe(id, chef, Instructions(ins));
+    return stream;
+  }
 private:
    //constants
      

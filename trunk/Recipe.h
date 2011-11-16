@@ -48,11 +48,18 @@ public:
   {
     int id;
     string chef, ins;
-    stream >> id >> chef >> ins;
+	stream >> id >> chef;
+	stringstream ss;
+	while(stream.eof()==false)
+	{
+		string s;
+		stream>>s;
+		ss<<s<<" ";
+	}
     if(!stream) {
       return stream;
     }
-    r = Recipe(id, chef, Instructions(ins));
+	r = Recipe(id, chef, Instructions(ss.str()));
     return stream;
   }
 private:

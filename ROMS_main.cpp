@@ -798,7 +798,7 @@ void do_add_recipe(Window& w, ROMS_Menu& menu) {
                 //user click the add button
                 if(menu_bar_userdata == Update_add_recipe) {
                         //create an order_item based on user's input
-                        stringstream ss;
+						stringstream ss;
                         ss << id.value() << " " << chef.value() << " " << instruc.value();
                         Recipe rec;
                         if(!(ss >> rec)) {
@@ -806,7 +806,7 @@ void do_add_recipe(Window& w, ROMS_Menu& menu) {
                         }
 			else {
                                 //add that item to database
-                                String msg;
+                                string msg;
                                 exit = menu.add_recipe(rec, msg);
                                 status_txt.set_label(msg);
                         }

@@ -698,3 +698,125 @@ void do_update_add_menu_item(Window& w, ROMS_Menu& m)
 	}
 
 }
+
+//RCD C.3
+void do_find_item_sales(Window& w, ROMS_Menu& m)
+{
+	//create window
+        Window ab(Point(w.x()+100, w.y()+50), 300, 80, "Find menu item sales");
+        ab.color(Color::white);
+        ab.callback((Fl_Callback*)Menu_Bar_CB, Address (Close_about_box));
+        ////create UI Components
+        //text
+        Text sel_menu_text(Point(10, 25), "Select Menu Item");
+	sel_menu_text.set_color(Color::black);
+        ab.attach(sel_menu_text);
+        //drop down
+        Fl_Choice mi(140, 10, 100, 20);
+        ab.add(mi);
+        mi.callback((Fl_Callback*)Menu_Bar_CB, Address(Find_menu_item_sales));
+	vector<Menu_Item>& items = m.items();
+	for(unsigned int i = 0; i < items.size(); i++) {
+		mi.add(items[i].get_name().c_str());
+	}
+        //text
+        Text sales_text(Point(120, 50), "");
+	sales_text.set_color(Color::black);
+        ab.attach(sales_text);
+        bool exit = false;
+        while(!exit) {
+                wait_for_menu_bar_click();
+                //if drop down menu changed
+                if(menu_bar_userdata == Find_menu_item_sales) {
+                        stringstream ss;
+			cerr << mi.value();
+                        ss << "Total Sales: $" << m.total_menu_item_sales(mi.value());
+                        sales_text.set_label(ss.str());
+                }
+                //anything else
+                else {
+                        exit = true;
+                }
+        }
+	ab.detach(sel_menu_text);
+	ab.detach(sales_text);
+}
+
+//RCD C.3
+void do_add_recipe(Window& w, ROMS_Menu& menu) {
+        //create window
+        Window ab(Point(w.x()+100, w.y()+100), 220, 220, "Add Recipe");
+        ab.color(Color::white);
+        ab.callback((Fl_Callback*)Menu_Bar_CB, Address (Close_about_box));
+
+        ////create UI components
+        //params
+        int input_height  = 20;
+        int input_offset_x= 100;
+        int input_offset_y= 10;
+        int input_spacing = 30;
+        int input_width = 100;
+
+        //texts
+        Text id_txt(Point(5, input_offset_y + input_spacing * 0 + 15), "Recipe ID");
+        Text chef_txt(Point(5, input_offset_y + input_spacing * 1 + 15), "Chef");
+        Text instruc_txt(Point(5, input_offset_y + input_spacing * 2 + 15), "Instuctions");
+	Text status_txt(Point(5, input_offset_y + input_spacing * 3 + 15), "");
+	id_txt.set_color(Color::black);
+	chef_txt.set_color(Color::black);
+	instruc_txt.set_color(Color::black);
+	status_txt.set_color(Color::black);
+        ab.attach(id_txt);
+        ab.attach(chef_txt);
+        ab.attach(instruc_txt);
+	ab.attach(status_txt);
+        
+        //inputs
+        Fl_Input id(input_offset_x, input_offset_y + input_spacing * 0, input_width, input_height);
+        Fl_Input chef(input_offset_x, input_offset_y + input_spacing * 1, input_width, input_height);
+        Fl_Input instruc(input_offset_x, input_offset_y + input_spacing * 2, input_width, input_height);
+        ab.add(id);
+        ab.add(chef);
+        ab.add(instruc);
+
+        //button
+	Button add(
+		   Point(input_offset_x, input_offset_y + input_spacing * 5), 
+		   input_width, 30, 
+		   "Add", 
+		   general_menu_bar_cb<Address(Update_add_recipe)>
+		   );
+        ab.attach(add);
+        
+        //process this window's logic
+        bool exit = false;
+        while(!exit) {
+                //wait for anything to happen at the window
+                wait_for_menu_bar_click();
+
+                ////parse command
+                //user click the add button
+                if(menu_bar_userdata == Update_add_recipe) {
+                        //create an order_item based on user's input
+                        stringstream ss;
+                        ss << id.value() << " " << chef.value() << " " << instruc.value();
+                        Recipe rec;
+                        if(!(ss >> rec)) {
+                                status_txt.set_label("Invalid Input!");
+                        }
+			else {
+                                //add that item to database
+                                String msg;
+                                exit = menu.add_recipe(rec, msg);
+                                status_txt.set_label(msg);
+                        }
+
+                }
+                
+                //user click other things
+                else {
+                        exit = true;
+                }
+	}
+}
+

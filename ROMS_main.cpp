@@ -13,6 +13,7 @@
 #include <FL/Fl_Text_Display.H>
 
 #include "ROMS_Menu.h"
+#include "BarChart.h"
 
 using namespace std;
 using namespace ROMS;
@@ -86,6 +87,7 @@ void do_add_order_item(Window&, ROMS_Menu&); //EP C
 void do_find_table_sales(Window&, ROMS_Menu&); // RMN C
 void do_update_add_menu_item(Window&, ROMS_Menu&); // RMN C
 
+void do_graph_order_sales(Window&, ROMS_Menu&); //EP D
 
 void do_read(Window&, ROMS_Menu&, string, string, Msg_type);
 void Main_Window_CB(Fl_Widget*, void*);
@@ -127,6 +129,13 @@ Fl_Menu_Item menu_bar[] = {
  {"Add Order Item", 0,  (Fl_Callback*)Main_Window_CB, Address (Update_add_order_item), 0, FL_NORMAL_LABEL, 0, 14, 0},
  {"Add Menu Item", 0,  (Fl_Callback*)Main_Window_CB, Address (Update_add_menu_item), 0, FL_NORMAL_LABEL, 0, 14, 0},
  {"Add Recipe", 0,  (Fl_Callback*)Main_Window_CB, Address (Update_add_recipe), 0, FL_NORMAL_LABEL, 0, 14, 0},
+
+ //EP D
+ {0,0,0,0,0,0,0,0,0},
+ {"Graph", 0,  0, 0, 64, FL_NORMAL_LABEL, 0, 14, 0},
+ {"Order Sales", 0,  (Fl_Callback*)Main_Window_CB, Address (Graph_order_sales), 0, FL_NORMAL_LABEL, 0, 14, 0},
+ //End EP D
+
  {0,0,0,0,0,0,0,0,0},
  {"About", 0,  0, 0, 64, FL_NORMAL_LABEL, 0, 14, 0},
  {"Info", 0,  (Fl_Callback*)Main_Window_CB, Address (About_info), 0, FL_NORMAL_LABEL, 0, 14, 0},
@@ -293,6 +302,10 @@ int main()
 				case Update_add_menu_item:
 					do_update_add_menu_item(sw,m);
 					break;
+
+				//EP D
+				case Graph_order_sales:
+					do_graph_order_sales(sw,m);
 
 				default:
 					cout << "case not implemented\n";
@@ -820,3 +833,83 @@ void do_add_recipe(Window& w, ROMS_Menu& menu) {
 	}
 }
 
+//EP D
+void do_graph_order_sales(Window& w, ROMS_Menu& m) {
+	//create window
+	int windowW = 500;
+	int windowH = 400;
+	Window ab(Point(w.x()+100, w.y()+100), windowW, windowH, "Order Sales Graph");
+	ab.color(Color::white);
+	ab.callback((Fl_Callback*)Menu_Bar_CB, Address (Close_about_box));
+
+	////create UI components
+	//params
+	int input_height  = 20;
+	int input_offset_x= 100;
+	int input_offset_y= 10;
+	int input_spacing = 30;
+	int input_width = 100;
+
+	//texts
+	Text year_txt			(Point(5, input_offset_y + input_spacing * 0 + 15), "Input a year: ");
+	Text status_txt			(Point(5, input_offset_y + input_spacing * 1 + 15), "");
+	ab.attach(year_txt);
+	ab.attach(status_txt);
+	
+	//inputs
+	Fl_Input year_in		(input_offset_x, input_offset_y + input_spacing * 0, input_width, input_height);
+	ab.add(year_in);
+
+	//button
+	Button add(
+		Point(input_offset_x + input_width + input_spacing, input_offset_y + input_spacing * 0), 
+		input_width, 30, 
+		"Graph", 
+		general_menu_bar_cb<Address(Graph_order_sales)>
+	);
+	ab.attach(add);
+
+	//the bar chart
+	BarChart chart(
+		Point(input_offset_x, input_offset_y + input_spacing * 4), 
+		windowW - input_offset_x * 2, 
+		windowH - (input_offset_y + input_spacing * 3), 
+		"Order Sales",
+		0
+	);
+	ab.attach(chart);
+	vector<string> labels;
+	for(int i = 1; i <= 12; ++i) {
+		stringstream ss; ss << i;
+		labels.push_back(ss.str());
+	}
+	vector<double> sales;
+	
+	//process this window's logic
+	bool exit = false;
+	while(!exit) {
+		//wait for anything to happen at the window
+		wait_for_menu_bar_click();
+
+		////parse command
+		//user click the graph button
+		if(menu_bar_userdata == Graph_order_sales) {
+			//get input
+			stringstream ss;
+			ss << year_in.value();
+			int year;
+			if(ss >> year) {
+				sales.clear();
+				m.calculate_order_sales(year, sales);
+				chart.init("Months", "Sales", &labels, &sales);
+			} else {
+				status_txt.set_label("Input for year should ba a valid integer!");
+			}
+		}
+		
+		//user click other things
+		else {
+			exit = true;
+		}
+	}
+}

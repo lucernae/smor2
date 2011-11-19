@@ -27,6 +27,7 @@ namespace ROMS{
 	Find_category_sales, Find_table_sales, Find_menu_item_sales,
 	Update_add_order_item, Update_add_menu_item, Update_add_recipe,
 	Tables_button, Orders_button, Categories_button, Recipes_button, Menu_items_button,
+	Graph_order_sales, //EP D
 	Display_window, Menu_bar_cb
 	};
    
@@ -90,6 +91,11 @@ public:
    bool addOrderItem(Order_Item& o, string& out_msg); //EP C
    // Add a new menu item, with similar spec with addOrderItem
    bool addMenuItem(Menu_Item& m, string& out_msg); // RMN C
+
+   //Calculate order sales for each month in a given year and put those values
+   //in outArr. outArr index will be from 0 to 11, with January as index 0, and Dec
+   //as index 11.
+   void calculate_order_sales(int year, vector<double>& outArr) {} //EP D
 
    	
    //show functions added to support GUI interface

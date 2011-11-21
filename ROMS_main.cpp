@@ -836,8 +836,8 @@ void do_add_recipe(Window& w, ROMS_Menu& menu) {
 //EP D
 void do_graph_order_sales(Window& w, ROMS_Menu& m) {
 	//create window
-	int windowW = 500;
-	int windowH = 400;
+	int windowW = 800;
+	int windowH = 600;
 	Window ab(Point(w.x()+100, w.y()+100), windowW, windowH, "Order Sales Graph");
 	ab.color(Color::white);
 	ab.callback((Fl_Callback*)Menu_Bar_CB, Address (Close_about_box));
@@ -871,20 +871,21 @@ void do_graph_order_sales(Window& w, ROMS_Menu& m) {
 
 	//the bar chart
 	BarChart chart(
-		Point(input_offset_x, input_offset_y + input_spacing * 4), 
-		windowW - input_offset_x * 2, 
-		windowH - (input_offset_y + input_spacing * 3), 
+		Point(input_offset_x+input_spacing*2, input_offset_y + input_spacing * 4), 
+		windowW - input_offset_x * 2-input_spacing*2, 
+		windowH - (input_offset_y * 2 + input_spacing * 12), 
 		"Order Sales",
 		0
 	);
 	ab.attach(chart);
+
 	vector<string> labels;
 	for(int i = 1; i <= 12; ++i) {
 		stringstream ss; ss << i;
 		labels.push_back(ss.str());
 	}
 	vector<double> sales;
-	
+
 	//process this window's logic
 	bool exit = false;
 	while(!exit) {
@@ -901,7 +902,45 @@ void do_graph_order_sales(Window& w, ROMS_Menu& m) {
 			if(ss >> year) {
 				sales.clear();
 				m.calculate_order_sales(year, sales);
-				chart.init("Months", "Sales", &labels, &sales);
+
+				/* RMN example of using initPercentageValue. Uncomment this line to see it
+				vector<vector<double>> percent;
+				for(int i=0;i<labels.size();i++)
+				{
+					vector<double>* pvec=new vector<double>();
+					double total=100;
+					for(int j=0;j<3;j++)
+					{
+						double val=rand()*total/RAND_MAX;
+						pvec->push_back(val);
+						total-=val;
+					}
+					pvec->push_back(total);
+					percent.push_back(*pvec);
+				}
+				vector<string> category;
+				category.push_back("Appetizer");
+				category.push_back("Dinner");
+				category.push_back("Lunch");
+				category.push_back("Breakfast");
+				vector<Color> colors;
+				colors.push_back(Color::black);
+				colors.push_back(Color::yellow);
+				colors.push_back(Color::blue);
+				colors.push_back(Color::red);
+				chart.initPercentageChartValue("Months","Category",&category,&labels,&percent,&colors);
+				// */
+
+				///* RMN example of using initChartValue. Uncomment this line to see it
+				int maxValue=10000;
+				for(int i=0;i<labels.size();i++)
+				{
+					sales.push_back(rand()*1.0f*maxValue/RAND_MAX);
+				}
+				chart.initChartValue("Months", "Sales", &labels, &sales,Color::blue);
+				// */
+
+				//chart.init("Months", "Sales", &labels, &sales);
 			} else {
 				status_txt.set_label("Input for year should ba a valid integer!");
 			}

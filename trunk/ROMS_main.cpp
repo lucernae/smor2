@@ -87,7 +87,9 @@ void do_add_order_item(Window&, ROMS_Menu&); //EP C
 void do_find_table_sales(Window&, ROMS_Menu&); // RMN C
 void do_update_add_menu_item(Window&, ROMS_Menu&); // RMN C
 
-void do_graph_order_sales(Window&, ROMS_Menu&); //EP D
+void do_graph_order_sales(Window&, ROMS_Menu&); //EP D1
+void do_graph_tables_sales(Window&, ROMS_Menu&); //EP D2
+void do_graph_categs_sales(Window&, ROMS_Menu&); //EP D3
 
 void do_read(Window&, ROMS_Menu&, string, string, Msg_type);
 void Main_Window_CB(Fl_Widget*, void*);
@@ -130,10 +132,12 @@ Fl_Menu_Item menu_bar[] = {
  {"Add Menu Item", 0,  (Fl_Callback*)Main_Window_CB, Address (Update_add_menu_item), 0, FL_NORMAL_LABEL, 0, 14, 0},
  {"Add Recipe", 0,  (Fl_Callback*)Main_Window_CB, Address (Update_add_recipe), 0, FL_NORMAL_LABEL, 0, 14, 0},
 
- //EP D
+ //EP D1 2 3
  {0,0,0,0,0,0,0,0,0},
  {"Graph", 0,  0, 0, 64, FL_NORMAL_LABEL, 0, 14, 0},
  {"Order Sales", 0,  (Fl_Callback*)Main_Window_CB, Address (Graph_order_sales), 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {"Tables Sales", 0,  (Fl_Callback*)Main_Window_CB, Address (Graph_tables_sales), 0, FL_NORMAL_LABEL, 0, 14, 0},
+ {"Categories Sales", 0,  (Fl_Callback*)Main_Window_CB, Address (Graph_categs_sales), 0, FL_NORMAL_LABEL, 0, 14, 0},
  //End EP D
 
  {0,0,0,0,0,0,0,0,0},
@@ -303,9 +307,16 @@ int main()
 					do_update_add_menu_item(sw,m);
 					break;
 
-				//EP D
+				//EP D 1 2 3
 				case Graph_order_sales:
 					do_graph_order_sales(sw,m);
+					break;
+				case Graph_categs_sales:
+					do_graph_categs_sales(sw,m);
+					break;
+				case Graph_tables_sales:
+					do_graph_tables_sales(sw,m);
+					break;
 
 				default:
 					cout << "case not implemented\n";
@@ -833,7 +844,191 @@ void do_add_recipe(Window& w, ROMS_Menu& menu) {
 	}
 }
 
-//EP D
+//EP D3
+void do_graph_categs_sales(Window& w, ROMS_Menu& m) {
+	//create window
+	int windowW = 800;
+	int windowH = 600;
+	Window ab(Point(w.x()+100, w.y()+100), windowW, windowH, "Categories Sales Graph");
+	ab.color(Color::white);
+	ab.callback((Fl_Callback*)Menu_Bar_CB, Address (Close_about_box));
+
+	////create UI components
+	//params
+	int input_height  = 20;
+	int input_offset_x= 100;
+	int input_offset_y= 10;
+	int input_spacing = 30;
+	int input_width = 100;
+
+	//texts
+	Text year_txt			(Point(5, input_offset_y + input_spacing * 0 + 15), "Input a year: ");
+	Text status_txt			(Point(5, input_offset_y + input_spacing * 1 + 15), "");
+	ab.attach(year_txt);
+	ab.attach(status_txt);
+	
+	//inputs
+	Fl_Input year_in		(input_offset_x, input_offset_y + input_spacing * 0, input_width, input_height);
+	ab.add(year_in);
+
+	//button
+	Button add(
+		Point(input_offset_x + input_width + input_spacing, input_offset_y + input_spacing * 0), 
+		input_width, input_height, 
+		"Graph", 
+		general_menu_bar_cb<Address(Graph_categs_sales)>
+	);
+	ab.attach(add);
+
+	//the bar chart
+	BarChart chart(
+		Point(input_offset_x+input_spacing*2, input_offset_y + input_spacing * 4), 
+		windowW - input_offset_x * 2-input_spacing*2, 
+		windowH - (input_offset_y * 2 + input_spacing * 12), 
+		"Categories Sales",
+		0
+	);
+	ab.attach(chart);
+
+	vector<Color> colors;
+	vector<string> categLegends;
+	for(int i = 0; i < m.get_categories().size(); ++i) {
+		categLegends.push_back(m.get_categories()[i].name());
+		colors.push_back(Color(i));
+	}
+	vector<vector<double>> sales;
+	vector<string> labels;
+	for(int i = 1; i <= 12; ++i) {
+		stringstream ss;
+		ss << i;
+		labels.push_back(ss.str());
+	}
+
+	//process this window's logic
+	bool exit = false;
+	while(!exit) {
+		//wait for anything to happen at the window
+		wait_for_menu_bar_click();
+
+		////parse command
+		//user click the graph button
+		if(menu_bar_userdata == Graph_categs_sales) {
+			//get input
+			stringstream ss;
+			ss << year_in.value();
+			int year;
+			if(ss >> year) {
+				//get sales
+				sales.clear();
+				m.calculate_categs_sales(year, sales);
+				
+				//draw!
+				chart.initPercentageChartValue("Months", "Sales", &categLegends, &labels, &sales, &colors); 
+				status_txt.set_label("");
+			} else {
+				status_txt.set_label("Input for year should ba a valid integer!");
+			}
+		}
+		
+		//user click other things
+		else {
+			exit = true;
+		}
+	}
+}
+
+//EP D2
+void do_graph_tables_sales(Window& w, ROMS_Menu& m) {
+	//create window
+	int windowW = 800;
+	int windowH = 600;
+	Window ab(Point(w.x()+100, w.y()+100), windowW, windowH, "Table Sales Graph");
+	ab.color(Color::white);
+	ab.callback((Fl_Callback*)Menu_Bar_CB, Address (Close_about_box));
+
+	////create UI components
+	//params
+	int input_height  = 20;
+	int input_offset_x= 100;
+	int input_offset_y= 10;
+	int input_spacing = 30;
+	int input_width = 100;
+
+	//texts
+	Text year_txt			(Point(5, input_offset_y + input_spacing * 0 + 15), "Input a year: ");
+	Text status_txt			(Point(5, input_offset_y + input_spacing * 1 + 15), "");
+	ab.attach(year_txt);
+	ab.attach(status_txt);
+	
+	//inputs
+	Fl_Input year_in		(input_offset_x, input_offset_y + input_spacing * 0, input_width, input_height);
+	ab.add(year_in);
+
+	//button
+	Button add(
+		Point(input_offset_x + input_width + input_spacing, input_offset_y + input_spacing * 0), 
+		input_width, input_height, 
+		"Graph", 
+		general_menu_bar_cb<Address(Graph_tables_sales)>
+	);
+	ab.attach(add);
+
+	//the bar chart
+	BarChart chart(
+		Point(input_offset_x+input_spacing*2, input_offset_y + input_spacing * 4), 
+		windowW - input_offset_x * 2-input_spacing*2, 
+		windowH - (input_offset_y * 2 + input_spacing * 12), 
+		"Table Sales",
+		0
+	);
+	ab.attach(chart);
+
+	vector<string> labels;
+	for(char i = 'A'; i <= 'H'; ++i) {
+		stringstream ss; ss << i;
+		labels.push_back(ss.str());
+	}
+	vector<double> sales;
+
+	//process this window's logic
+	bool exit = false;
+	while(!exit) {
+		//wait for anything to happen at the window
+		wait_for_menu_bar_click();
+
+		////parse command
+		//user click the graph button
+		if(menu_bar_userdata == Graph_tables_sales) {
+			//get input
+			stringstream ss;
+			ss << year_in.value();
+			int year;
+			if(ss >> year) {
+				sales.clear();
+				m.calculate_table_sales(year, sales);
+
+				//FIXME testing
+				int maxValue=10000;
+				for(int i=0;i<labels.size();i++)
+				{
+					sales.push_back(rand()*1.0f*maxValue/RAND_MAX);
+				}
+
+				chart.initChartValue("Tables", "Sales", &labels, &sales,Color::blue);
+				status_txt.set_label("");
+			} else {
+				status_txt.set_label("Input for year should ba a valid integer!");
+			}
+		}
+		
+		//user click other things
+		else {
+			exit = true;
+		}
+	}
+}
+
+//EP D1
 void do_graph_order_sales(Window& w, ROMS_Menu& m) {
 	//create window
 	int windowW = 800;
@@ -863,7 +1058,7 @@ void do_graph_order_sales(Window& w, ROMS_Menu& m) {
 	//button
 	Button add(
 		Point(input_offset_x + input_width + input_spacing, input_offset_y + input_spacing * 0), 
-		input_width, 30, 
+		input_width, input_height, 
 		"Graph", 
 		general_menu_bar_cb<Address(Graph_order_sales)>
 	);
@@ -903,44 +1098,15 @@ void do_graph_order_sales(Window& w, ROMS_Menu& m) {
 				sales.clear();
 				m.calculate_order_sales(year, sales);
 
-				/* RMN example of using initPercentageValue. Uncomment this line to see it
-				vector<vector<double>> percent;
-				for(int i=0;i<labels.size();i++)
-				{
-					vector<double>* pvec=new vector<double>();
-					double total=100;
-					for(int j=0;j<3;j++)
-					{
-						double val=rand()*total/RAND_MAX;
-						pvec->push_back(val);
-						total-=val;
-					}
-					pvec->push_back(total);
-					percent.push_back(*pvec);
-				}
-				vector<string> category;
-				category.push_back("Appetizer");
-				category.push_back("Dinner");
-				category.push_back("Lunch");
-				category.push_back("Breakfast");
-				vector<Color> colors;
-				colors.push_back(Color::black);
-				colors.push_back(Color::yellow);
-				colors.push_back(Color::blue);
-				colors.push_back(Color::red);
-				chart.initPercentageChartValue("Months","Category",&category,&labels,&percent,&colors);
-				// */
-
-				///* RMN example of using initChartValue. Uncomment this line to see it
+				//FIXME testing
 				int maxValue=10000;
 				for(int i=0;i<labels.size();i++)
 				{
 					sales.push_back(rand()*1.0f*maxValue/RAND_MAX);
 				}
-				chart.initChartValue("Months", "Sales", &labels, &sales,Color::blue);
-				// */
 
-				//chart.init("Months", "Sales", &labels, &sales);
+				chart.initChartValue("Months", "Sales", &labels, &sales,Color(0xff0000));
+				status_txt.set_label("");
 			} else {
 				status_txt.set_label("Input for year should ba a valid integer!");
 			}

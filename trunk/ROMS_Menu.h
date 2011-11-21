@@ -27,7 +27,7 @@ namespace ROMS{
 	Find_category_sales, Find_table_sales, Find_menu_item_sales,
 	Update_add_order_item, Update_add_menu_item, Update_add_recipe,
 	Tables_button, Orders_button, Categories_button, Recipes_button, Menu_items_button,
-	Graph_order_sales, //EP D
+	Graph_order_sales, Graph_tables_sales, Graph_categs_sales,//EP D
 	Display_window, Menu_bar_cb
 	};
    
@@ -96,6 +96,16 @@ public:
    //in outArr. outArr index will be from 0 to 11, with January as index 0, and Dec
    //as index 11.
    void calculate_order_sales(int year, vector<double>& outArr) {} //EP D
+   
+   //Calculate table sales for each month in a given year and put those values
+   //in outArr. outArr index will be from 0 to 7, with "A" as index 0, and "H"
+   //as index 7. (Yes, table can only be A - H)
+   void calculate_table_sales(int year, vector<double>& outArr) {} //EP D
+
+   //Calculate category sales for each month in a given year and put those values
+   //in outArr. outArr index will be from 0 to 11, with January as index 0, and Dec
+   //as index 11.
+   void calculate_categs_sales(int year, vector<vector<double>>& outArr) {} //EP D
 
    	
    //show functions added to support GUI interface

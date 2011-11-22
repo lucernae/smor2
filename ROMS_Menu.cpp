@@ -718,4 +718,91 @@ bool ROMS_Menu::addMenuItem(Menu_Item& m, string& out_msg)
 	return pass;
 
 }
+
+
+//RCD D
+void ROMS_Menu::calculate_order_sales(int year, vector<double>& outArr)
+{
+	outArr.clear();
+	for(unsigned int m = 1; m <= 12; m++){
+		double price = 0;
+		for(unsigned int i = 0; i < orders.size(); i++){
+			if(orders[i].o_date().year() == year && orders[i].o_date().month() == (Date::Month) m){
+				int order_num = orders[i].get_order_id();
+				for(unsigned int j = 0; j < order_items.size(); j++){
+					if(order_items[j].get_order_id() == order_num){
+						int menu_id = order_items[j].get_menu_item_id();
+						for(unsigned int k = 0; k < menu_items.size(); k++){
+							if(menu_items[k].get_menu_item_id() == menu_id){
+								price += order_items[j].get_qty()*menu_items[k].get_price();
+							}
+						}
+					}
+				}
+			}
+		}
+		outArr.push_back(price);
+	}
+}
+
+//RCD D
+void ROMS_Menu::calculate_table_sales(int year, vector<double>& outArr)
+{
+	outArr.clear();
+	vector<int> tables;
+	for(unsigned int i = 0; i < orders.size(); i++){
+		if(i=0)
+			tables.push_back(orders[i].get_table_id());
+		else if(orders[i-1].get_table_id() != orders[i].get_table_id())
+			tables.push_back(orders[i].get_table_id());
+	}
+	for(unsigned int i = 0; i < tables.size(); i++){
+		double price = 0;
+		for(unsigned int j = 0; j < orders.size(); j++){
+			if(tables[i] == orders[j].get_table_id()){
+				for(unsigned int k = 0; k < order_items.size(); k++){
+					if(orders[j].get_order_id() == order_items[k].get_order_id()){
+						for(unsigned int l = 0; l < menu_items.size(); l++){
+							if(menu_items[l].get_menu_item_id() == order_items[k].get_menu_item_id()){
+								price += order_items[k].get_qty() * menu_items[l].get_price();
+							}
+						}
+					}
+				}
+			}
+		}
+		outArr.push_back(price);
+	}
+}
+
+
+//RCD D
+void ROMS_Menu::calculate_categs_sales(int year, vector<vector<double> >& outArr)
+{
+	outArr.clear();
+	for(unsigned int m = 1; m <= 12; m++){
+		vector<double> prices;
+		for(unsigned int i = 0; i <= categories.size(); i++){
+			double cat_price = 0;
+			int cat_id = categories[i].get_cat_id();
+			for(unsigned int j = 0; j < orders.size(); j++){
+				if(orders[j].o_date().year() == year && orders[j].o_date().month() == (Date::Month) m){
+					int order_num = orders[j].get_order_id();
+					for(unsigned int k = 0; k < order_items.size(); k++){
+						if(order_items[k].get_order_id() == order_num){
+							int menu_id = order_items[k].get_menu_item_id();
+							for(unsigned int l = 0; l < menu_items.size(); l++){
+								if(menu_items[l].get_menu_item_id() == menu_id && menu_items[l].get_cat_id() == cat_id){
+									cat_price += order_items[k].get_qty()*menu_items[l].get_price();
+								}
+							}
+						}
+					}
+				}
+			}
+			prices.push_back(cat_price);
+		}
+		outArr.push_back(prices);
+	}
+}
 }

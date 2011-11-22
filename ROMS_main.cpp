@@ -924,7 +924,7 @@ void do_graph_categs_sales(Window& w, ROMS_Menu& m) {
 				
 				//draw!
 				chart.setMaxXLabel(labels.size());
-				chart.initPercentageChartValue("Months", "Sales", &categLegends, &labels, &sales, &colors); 
+				chart.initPercentageChartValue("Months", "Sales($)", &categLegends, &labels, &sales, &colors); 
 				status_txt.set_label("");
 			} else {
 				status_txt.set_label("Input for year should ba a valid integer!");
@@ -1038,7 +1038,7 @@ void do_graph_tables_sales(Window& w, ROMS_Menu& m) {
 			if(ss >> year) {
 				sales.clear();
 				m.calculate_table_sales(year, sales);
-				chart.initChartValue("Tables", "Sales", &labels, &sales,Color::blue);
+				chart.initChartValue("Tables", "Sales($)", &labels, &sales,Color::blue);
 				status_txt.set_label("");
 			} else {
 				status_txt.set_label("Input for year should ba a valid integer!");
@@ -1100,7 +1100,8 @@ void do_graph_order_sales(Window& w, ROMS_Menu& m) {
 
 	vector<string> labels;
 	for(int i = 1; i <= 12; ++i) {
-		stringstream ss; ss << i;
+		stringstream ss;
+		ss << i;
 		labels.push_back(ss.str());
 	}
 	vector<double> sales;
@@ -1122,7 +1123,7 @@ void do_graph_order_sales(Window& w, ROMS_Menu& m) {
 				sales.clear();
 				m.calculate_order_sales(year, sales);
 				chart.setMaxXLabel(labels.size());
-				chart.initChartValue("Months", "Sales", &labels, &sales,Color(0xff0000));
+				chart.initChartValue("Months", "Sales($)", &labels, &sales,Color(0xff0000));
 				status_txt.set_label("");
 			} else {
 				status_txt.set_label("Input for year should ba a valid integer!");

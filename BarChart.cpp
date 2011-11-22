@@ -32,6 +32,7 @@ void BarChart::initChartValue(string legendH, string legendV, vector<string>* la
 		if(maxValue!=0)
 		{
 			barLen=(int)(src->at(i)*height/maxValue);
+			cout << "debug barlen " << i << "\n";
 		}
 		else
 		{
@@ -39,6 +40,7 @@ void BarChart::initChartValue(string legendH, string legendV, vector<string>* la
 		}
 		if(barLen>0 && notchW>0)
 		{
+			cout << "debug notch " << i << "\n";
 			s=new Rectangle(Point(loc.x+i*notchW+padding,loc.y+height-barLen),notchW-2*padding,barLen);
 			s->set_fill_color(color);
 			s->set_color(color);

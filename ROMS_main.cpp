@@ -984,8 +984,9 @@ void do_graph_tables_sales(Window& w, ROMS_Menu& m) {
 	ab.attach(chart);
 
 	vector<string> labels;
-	for(char i = 'A'; i <= 'H'; ++i) {
-		stringstream ss; ss << i;
+	const Vector<int> tables = m.get_table_ids();
+	for(int i = 0; i < tables.size(); ++i) {
+		stringstream ss; ss << tables[i];
 		labels.push_back(ss.str());
 	}
 	vector<double> sales;
@@ -1006,14 +1007,6 @@ void do_graph_tables_sales(Window& w, ROMS_Menu& m) {
 			if(ss >> year) {
 				sales.clear();
 				m.calculate_table_sales(year, sales);
-
-				//FIXME testing
-				int maxValue=10000;
-				for(int i=0;i<labels.size();i++)
-				{
-					sales.push_back(rand()*1.0f*maxValue/RAND_MAX);
-				}
-
 				chart.initChartValue("Tables", "Sales", &labels, &sales,Color::blue);
 				status_txt.set_label("");
 			} else {
@@ -1097,14 +1090,6 @@ void do_graph_order_sales(Window& w, ROMS_Menu& m) {
 			if(ss >> year) {
 				sales.clear();
 				m.calculate_order_sales(year, sales);
-
-				//FIXME testing
-				int maxValue=10000;
-				for(int i=0;i<labels.size();i++)
-				{
-					sales.push_back(rand()*1.0f*maxValue/RAND_MAX);
-				}
-
 				chart.initChartValue("Months", "Sales", &labels, &sales,Color(0xff0000));
 				status_txt.set_label("");
 			} else {

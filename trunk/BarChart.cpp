@@ -19,6 +19,7 @@ void BarChart::initChartValue(string legendH, string legendV, vector<string>* la
 	_labels		= labels;
 	_src		= src;
 
+
 	// RMN initialize axis label
 	initAxisLabel(legendH,legendV,labels,src);
 
@@ -46,23 +47,46 @@ void BarChart::initChartValue(string legendH, string legendV, vector<string>* la
 	}
 }
 
-void BarChart::initPercentageChartValue(string legendH, string legendV,vector<string>* legendCategory,vector<string> * labels, vector<vector<double>>* srcPercentage,vector<Color>* color)
+void BarChart::initPercentageChartValue(string legendH, string legendV,vector<string>* legendCategory,vector<string> * labels, vector<vector<double>>* src,vector<Color>* color)
 {
 	// RMN initialize axis label
 	vector<double> dsrc;
 	dsrc.push_back(100);
 	initAxisLabel(legendH,legendV,labels,&dsrc);
 
+	// percentage the value...
+	vector<vector<double>> srcPercentage;
+
+	for(int i=0;i<src->size();i++)
+	{
+		double total=0;
+		for(int j=0;j<src->at(i).size();j++)
+		{
+			total+=src->at(i).at(j);
+		}
+		vector<double> percent;
+		// check to avoid division by zero
+		if(total!=0)
+		{
+			for(int j=0;j<src->at(i).size();j++)
+			{
+				percent.push_back(src->at(i).at(j)*100/total);
+			}
+		}
+		srcPercentage.push_back(percent);
+	}
+
+
 	Shape * s;
-	// RMN now we draw the value... let's assume that srcPercentage is its percentage value
+	// RMN now we draw the value...
 	int barLen=0;
 	int padding=5;
-	for(int i=0;i<srcPercentage->size();i++)
+	for(int i=0;i<srcPercentage.size();i++)
 	{
 		int totalBar=0;
-		for(int j=0;j<srcPercentage->at(i).size();j++)
+		for(int j=0;j<srcPercentage.at(i).size();j++)
 		{
-			barLen=(int)(srcPercentage->at(i).at(j)*height/100);
+			barLen=(int)(srcPercentage.at(i).at(j)*height/100);
 			if((int)barLen>0)
 			{
 				s=new Rectangle(Point(loc.x+i*notchW+padding,loc.y+height-totalBar-barLen),notchW-2*padding,barLen);

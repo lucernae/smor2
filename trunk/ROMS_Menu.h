@@ -95,17 +95,17 @@ public:
    //Calculate order sales for each month in a given year and put those values
    //in outArr. outArr index will be from 0 to 11, with January as index 0, and Dec
    //as index 11.
-   void calculate_order_sales(int year, vector<double>& outArr) {} //EP D
+   void calculate_order_sales(int year, vector<double>& outArr); //EP D
    
    //Calculate table sales for each month in a given year and put those values
    //in outArr. outArr index will be from 0 to 7, with "A" as index 0, and "H"
    //as index 7. (Yes, table can only be A - H)
-   void calculate_table_sales(int year, vector<double>& outArr) {} //EP D
+   void calculate_table_sales(int year, vector<double>& outArr); //EP D
 
    //Calculate category sales for each month in a given year and put those values
    //in outArr. outArr index will be from 0 to 11, with January as index 0, and Dec
    //as index 11.
-   void calculate_categs_sales(int year, vector<vector<double>>& outArr) {} //EP D
+   void calculate_categs_sales(int year, vector<vector<double>>& outArr); //EP D
 
    	
    //show functions added to support GUI interface

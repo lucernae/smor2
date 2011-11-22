@@ -923,6 +923,7 @@ void do_graph_categs_sales(Window& w, ROMS_Menu& m) {
 				m.calculate_categs_sales(year, sales);
 				
 				//draw!
+				chart.setMaxXLabel(labels.size());
 				chart.initPercentageChartValue("Months", "Sales", &categLegends, &labels, &sales, &colors); 
 				status_txt.set_label("");
 			} else {
@@ -973,6 +974,23 @@ void do_graph_tables_sales(Window& w, ROMS_Menu& m) {
 	);
 	ab.attach(add);
 
+	// RMN added nextPage and prevPage button
+	Button next(
+		Point(input_offset_x + input_width + input_spacing*13, input_offset_y + input_spacing * 14), 
+		input_width, input_height, 
+		"Next", 
+		general_menu_bar_cb<Address(Graph_next_page)>
+		);
+	ab.attach(next);
+
+	Button prev(
+		Point(input_offset_x + input_width + input_spacing, input_offset_y + input_spacing * 14), 
+		input_width, input_height, 
+		"Prev", 
+		general_menu_bar_cb<Address(Graph_prev_page)>
+		);
+	ab.attach(prev);
+
 	//the bar chart
 	BarChart chart(
 		Point(input_offset_x+input_spacing*2, input_offset_y + input_spacing * 4), 
@@ -981,10 +999,11 @@ void do_graph_tables_sales(Window& w, ROMS_Menu& m) {
 		"Table Sales",
 		0
 	);
+	chart.setMaxXLabel(10);
 	ab.attach(chart);
 
 	vector<string> labels;
-	const Vector<int> tables = m.get_table_ids();
+	const vector<int> tables = m.get_table_ids();
 	for(int i = 0; i < tables.size(); ++i) {
 		stringstream ss; ss << tables[i];
 		labels.push_back(ss.str());
@@ -998,6 +1017,18 @@ void do_graph_tables_sales(Window& w, ROMS_Menu& m) {
 		wait_for_menu_bar_click();
 
 		////parse command
+		if(menu_bar_userdata == Graph_next_page)
+		{
+			chart.nextPage();
+			menu_bar_userdata=Graph_tables_sales;
+		}
+
+		if(menu_bar_userdata == Graph_prev_page)
+		{
+			chart.prevPage();
+			menu_bar_userdata=Graph_tables_sales;
+		}
+
 		//user click the graph button
 		if(menu_bar_userdata == Graph_tables_sales) {
 			//get input
@@ -1090,6 +1121,7 @@ void do_graph_order_sales(Window& w, ROMS_Menu& m) {
 			if(ss >> year) {
 				sales.clear();
 				m.calculate_order_sales(year, sales);
+				chart.setMaxXLabel(labels.size());
 				chart.initChartValue("Months", "Sales", &labels, &sales,Color(0xff0000));
 				status_txt.set_label("");
 			} else {

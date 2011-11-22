@@ -16,6 +16,7 @@ class BarChart : public Widget
 {
 public:
 	BarChart(Point XY, int W, int H, string L, Callback cb): Widget(XY, W, H, L, cb) {
+		maxXLabel=10;
 	}
 	~BarChart(void);
 
@@ -28,6 +29,11 @@ public:
 	//void init(string legendH, string legendV, vector<string>* labels, vector<double>* src);
 	void attach(Window& win) { own=&win; }
 
+	void setMaxXLabel(int max) { maxXLabel=max; }// RMN set maximum number of labels in x axis
+	void nextPage(); // RMN increment x axis 
+	void prevPage(); // RMN decrement y axis
+	void adjustPage(int xAxisSize); // RMN adjust the page value so it would not exceed boundary...
+
 private:
 	vector<string>* _labels;
 	vector<double>* _src;
@@ -38,6 +44,8 @@ private:
 	int notchH; // RMN pixel height of vertical notch
 	int notchHValue; // RMN notch value in vertical unit
 	int maxValue; // RMN maximum value of data
+	int page; // RMN page data if the horizontal axis exceed the maxXLabel;
+	int maxXLabel; // RMN maximum X label showed
 };
 
 #endif

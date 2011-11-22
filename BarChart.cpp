@@ -5,6 +5,7 @@ using namespace Graph_lib;
 
 BarChart::~BarChart(void)
 {
+	removeAllShape();
 }
 
 // RMN some nasty and complicated init function, but i implement it as flexible as possible...
@@ -27,12 +28,12 @@ void BarChart::initChartValue(string legendH, string legendV, vector<string>* la
 	Shape * s;
 	int barLen=0;
 	int padding=5;
-	for(int i=0;i<src->size();i++)
+	for(int i=0;i+page<src->size() && i<maxXLabel;i++)
 	{
 		if(maxValue!=0)
 		{
-			barLen=(int)(src->at(i)*height/maxValue);
-			cout << "debug barlen " << i << "\n";
+			barLen=(int)(src->at(i+page)*height/maxValue);
+			//cout << "debug barlen " << i << "\n";
 		}
 		else
 		{
@@ -40,7 +41,7 @@ void BarChart::initChartValue(string legendH, string legendV, vector<string>* la
 		}
 		if(barLen>0 && notchW>0)
 		{
-			cout << "debug notch " << i << "\n";
+			//cout << "debug notch " << i << "\n";
 			s=new Rectangle(Point(loc.x+i*notchW+padding,loc.y+height-barLen),notchW-2*padding,barLen);
 			s->set_fill_color(color);
 			s->set_color(color);
@@ -59,20 +60,21 @@ void BarChart::initPercentageChartValue(string legendH, string legendV,vector<st
 	// percentage the value...
 	vector<vector<double>> srcPercentage;
 
-	for(int i=0;i<src->size();i++)
+	for(int i=0;i+page<src->size() && i<maxXLabel;i++)
 	{
 		double total=0;
-		for(int j=0;j<src->at(i).size();j++)
+		int index=i+page;
+		for(int j=0;j<src->at(index).size();j++)
 		{
-			total+=src->at(i).at(j);
+			total+=src->at(index).at(j);
 		}
 		vector<double> percent;
 		// check to avoid division by zero
 		if(total!=0)
 		{
-			for(int j=0;j<src->at(i).size();j++)
+			for(int j=0;j<src->at(index).size();j++)
 			{
-				percent.push_back(src->at(i).at(j)*100/total);
+				percent.push_back(src->at(index).at(j)*100/total);
 			}
 		}
 		srcPercentage.push_back(percent);
@@ -83,12 +85,13 @@ void BarChart::initPercentageChartValue(string legendH, string legendV,vector<st
 	// RMN now we draw the value...
 	int barLen=0;
 	int padding=5;
-	for(int i=0;i<srcPercentage.size();i++)
+	for(int i=0;i+page<srcPercentage.size() && i<maxXLabel;i++)
 	{
 		int totalBar=0;
-		for(int j=0;j<srcPercentage.at(i).size();j++)
+		int index=i+page;
+		for(int j=0;j<srcPercentage.at(index).size();j++)
 		{
-			barLen=(int)(srcPercentage.at(i).at(j)*height/100);
+			barLen=(int)(srcPercentage.at(index).at(j)*height/100);
 			if((int)barLen>0)
 			{
 				s=new Rectangle(Point(loc.x+i*notchW+padding,loc.y+height-totalBar-barLen),notchW-2*padding,barLen);
@@ -148,8 +151,21 @@ void BarChart::initAxisLabel(string legendH, string legendV, vector<string>* lab
 	//	So, instead making local variable like: Axis xAxis(...,...,...) , we had to use 'new'
 	//	keywords and carefully deleted it, when it is not required anymore
 	Shape *s;
+	
+	adjustPage(labels->size());
+	
+	int minimalNotchW=12;
+	if(width/maxXLabel<minimalNotchW)
+	{
+		notchW=minimalNotchW;
+	}
+	else
+	{
+		notchW=width/maxXLabel;
+	}
+
 	// RMN x axis. The Axis is placed so it will become a widget box when it is drawn
-	s=new Axis(Axis::Orientation::x,Point(loc.x,loc.y+height),width,labels->size(),"");
+	s=new Axis(Axis::Orientation::x,Point(loc.x,loc.y+height),notchW*maxXLabel,maxXLabel,"");
 	s->set_color(Color::red);
 	addShape(s);
 
@@ -160,10 +176,9 @@ void BarChart::initAxisLabel(string legendH, string legendV, vector<string>* lab
 	addShape(s);
 
 	// RMN horizontal labels. We carefully take the size of the notch to match this size of labels
-	notchW=width/labels->size();
-	for(int i=0;i<labels->size();i++)
+	for(int i=0;i+page<labels->size() && i<maxXLabel;i++)
 	{
-		addShape(new Text(Point(loc.x+(i)*notchW,loc.y+height+15),labels->at(i)));
+		addShape(new Text(Point(loc.x+(i)*notchW,loc.y+height+15),labels->at(i+page)));
 	}
 
 	// RMN vertical labels. We also carefully take the size of the notch and its label to match src vector
@@ -191,4 +206,30 @@ void BarChart::initAxisLabel(string legendH, string legendV, vector<string>* lab
 	// RMN draw the legendH and legendV
 	addShape(new Text(Point(loc.x+width/2-legendH.size()*10/2,loc.y+height+50),legendH));
 	addShape(new Text(Point(loc.x-legendV.size()*30/2,loc.y+height/2),legendV));
+}
+
+void BarChart::nextPage()
+{
+	page+=maxXLabel;
+}
+
+void BarChart::prevPage()
+{
+	page-=maxXLabel;
+}
+
+void BarChart::adjustPage(int xAxisSize)
+{
+	if(page>xAxisSize)
+	{
+		page=(page/xAxisSize)*xAxisSize;
+	}
+	else if(page==xAxisSize)
+	{
+		page-=maxXLabel;
+	}
+	else if(page<0)
+	{
+		page=0;
+	}
 }

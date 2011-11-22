@@ -28,6 +28,7 @@ namespace ROMS{
 	Update_add_order_item, Update_add_menu_item, Update_add_recipe,
 	Tables_button, Orders_button, Categories_button, Recipes_button, Menu_items_button,
 	Graph_order_sales, Graph_tables_sales, Graph_categs_sales,//EP D
+	Graph_next_page, Graph_prev_page, // RMN D
 	Display_window, Menu_bar_cb
 	};
    

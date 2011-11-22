@@ -751,7 +751,7 @@ void ROMS_Menu::calculate_table_sales(int year, vector<double>& outArr)
 	outArr.clear();
 	vector<int> tables;
 	for(unsigned int i = 0; i < orders.size(); i++){
-		if(i=0)
+		if(i==0)
 			tables.push_back(orders[i].get_table_id());
 		else if(orders[i-1].get_table_id() != orders[i].get_table_id())
 			tables.push_back(orders[i].get_table_id());
@@ -782,7 +782,7 @@ void ROMS_Menu::calculate_categs_sales(int year, vector<vector<double> >& outArr
 	outArr.clear();
 	for(unsigned int m = 1; m <= 12; m++){
 		vector<double> prices;
-		for(unsigned int i = 0; i <= categories.size(); i++){
+		for(unsigned int i = 0; i < categories.size(); i++){
 			double cat_price = 0;
 			int cat_id = categories[i].get_cat_id();
 			for(unsigned int j = 0; j < orders.size(); j++){

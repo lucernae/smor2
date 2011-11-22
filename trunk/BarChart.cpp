@@ -41,11 +41,21 @@ void BarChart::initChartValue(string legendH, string legendV, vector<string>* la
 		}
 		if(barLen>0 && notchW>0)
 		{
-			//cout << "debug notch " << i << "\n";
-			s=new Rectangle(Point(loc.x+i*notchW+padding,loc.y+height-barLen),notchW-2*padding,barLen);
+			//the bar
+			Point p(loc.x+i*notchW+padding,loc.y+height-barLen);
+			s=new Rectangle(p,notchW-2*padding,barLen);
 			s->set_fill_color(color);
 			s->set_color(color);
 			addShape(s);
+
+			//the value
+			stringstream ss; ss << (src->at(i+page));
+			addShape(
+				new Text(
+					Point(p.x, p.y - 5), 
+					ss.str()
+				)
+			); 
 		}
 	}
 }
